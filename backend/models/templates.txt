@@ -1,0 +1,50 @@
+// Job
+
+{
+
+    "skills":["C","C++","JAVA"],
+    "rating":3,
+    "salary":50000,
+    "title":"Researcher",
+    "max_applicants":15,
+    "max_positions":2,
+    "recruiter":"5ffbfc25b9d3b6e3ed769341",
+    "type":"Internship",
+    "duration":5,
+    "posting_date":{"date":5,"month":"June","year": 2020}
+
+}
+
+// User : Applicant
+
+{
+    "name": "karthik",
+    "email": "karthik2@gmail.com",
+    "password": "karthik",
+    "type": "Applicant",
+    "skills": ["C" , "C++", "JAVA"],
+    "languages": ["Hindi"],
+    "education": [{"college": "IIIT-H" , "start_year": 2020, "end_year": 2024}]
+}
+
+// User : Recruiter 
+
+
+{
+    "name": "karthik",
+    "email": "karthik2@gmail.com",
+    "password": "karthik",
+    "type": "Recruiter",
+    "phone": "+919150275254",
+    "bio": "I am a person from XYZ company"
+}
+
+// Application
+
+{
+    "applicant": //Include ObjectID,
+    "job": //Include ObjectID,
+    "sop": "Include SOP"
+}
+
+// Test Recruiter deletion

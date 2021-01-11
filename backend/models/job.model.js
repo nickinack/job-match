@@ -20,17 +20,20 @@ const jobSchema = new Schema({
     },
 
     date_posted: {
-        type: Number,
+        type: Date,
+        default: Date.now,
         required: true
     },
 
     recruiter: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     },
 
     deadline: {
         type: Date,
+        default: Date.now,
         required: true
     },
 
@@ -74,4 +77,17 @@ const jobSchema = new Schema({
         required: true
     }
 
-})
+}, {timestamps: true});
+
+//Validators
+
+function dateValidator (value) {
+    if(!value.end_year){
+        return true;
+    }
+    return value.start_year <= value.end_year;
+}
+
+//Job
+const Job = mongoose.model('Job', jobSchema);
+module.exports = Job;

@@ -19,9 +19,12 @@ app.listen(port , () => {
 
 const applicantsRouter = require('./routes/applicants');
 const recruitersRouter = require('./routes/recruiters');
-
+const jobsRouter = require('./routes/jobs');
+const usersRouter = require('./routes/users');
 app.use('/applicants' , applicantsRouter);
 app.use('/recruiters' , recruitersRouter);
+app.use('/jobs' , jobsRouter);
+app.use('/users' , usersRouter);
 
 const connection = mongoose.connection;
 connection.once('open' , () => {

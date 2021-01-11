@@ -4,42 +4,27 @@ const Schema = mongoose.Schema;
 
 const applicantSchema = new Schema({
 
-    name: {
-        type: String,
-        required: true
-    },
-
-    email: {
-        type: String,
+    usrid: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
         required: true,
         unique: true
     },
 
-    password: {
-        type: String,
-        required: true,
-        minlength: 3
+    rating: {
+        type: Number,
+        min: 0,
+        max: 5,
+        default: 0
     },
 
     education: [
         {
             college: {type: String, required: true},
-            date_schema: {
-                type: {
-                    start_year: {type: Number, required: true},
-                    end_year: {type: Number}
-                },
-                validate: [dateValidator, "Start date must be present and must be before end date"]
-            }
+            start_year: {type: Number, required: true},
+            end_year: {type: Number},
         }
     ],
-
-    rating: {
-            type: Number,
-            min: 0,
-            max: 5,
-            default: 0
-        },
 
     skills: [
         {

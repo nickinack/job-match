@@ -1,55 +1,139 @@
 const router = require('express').Router();
 let Recruiter = require('../models/recruiter.model');
+let Job = require('../models/job.model');
+let User = require('../models/user.model');
+let Application = require('../models/application.model');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const auth = require('../middleware/auth');
 
 router.route('/viewall').get((req , res) => {
     console.log("In recruiter Viewall")
     Recruiter.find()
-    .then(recruiters => res.json(recruiter))
-    .catch(err => res.status(400).json('Error: ' + err));
-});
-
-router.route('/add').post((req , res) => {
-    console.log("Add Recruiter")
-    const name = req.body.name;
-    const email = req.body.email;
-    const password = req.body.password;
-    const phone = req.body.phone;
-    const bio = req.body.bio;
-
-    const newRecruiter = new Recruiter({name,email,password,phone,bio});
-    newRecruiter.save()
-    .then(() => res.json('Succesfully added new recruiter!'))
-    .catch(err => res.status(400).json('Error: ' + err));
-});
-
-router.route('/:id').get((req , res) => {
-    console.log("View recruiter by ID")
-    Recruiter.findById(req.params.id)
     .then(recruiters => res.json(recruiters))
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-router.route('/:id').delete((req , res) => {
+router.route('/:id').get(auth, (req,res) => {
+
+    if(req.user.id !== req.params.id)
+        return res.status(400).json({ msg: 'Not permitted' });
+
+    Recruiter.findOne({usrid: req.params.id})
+    .then(recruiter => {
+        if(!recruiter){
+            return res.status(400).json({ msg: 'Not permitted' });
+        }
+        const id = req.params.id;
+        User.findById(id)
+        .then(users => res.json(users))
+        .catch(err => res.status(400).json('Error: ' + err));
+    })
+    .catch(err => res.status(400).json('Error: ' + err));
+})
+
+// Given usrid, delete recruiter
+router.route('/:id').delete(auth, (req , res) => {
+    if(req.user.id != req.params.id)
+        return res.status(400).json({ msg: 'Not permitted' });
+
     console.log("Delete Recruiter")
-    Recruiter.findByIdAndDelete(req.params.id)
-    .then(() => res.json('Successfully Deleted'))
+    Recruiter.findOneAndDelete({usrid: req.params.id})
+    .then(() => {
+        Job.find({recruiter: req.params.id})
+        .then(jobs => {
+            var jobids = [];
+            if(jobs.length != 0)
+            {
+                for(var i = 0 ; i < jobs.length ; i++)
+                {
+                    jobids.push(jobs[i].id);
+                }
+                console.log(jobids);
+            }
+            Job.deleteMany({recruiter: req.params.id})
+            .then(() => {
+                Application.deleteMany({job: {$in : jobids}})
+                .then(() => {
+                    User.findOneAndDelete(req.params.id)
+                    .then(() => res.json("Successfully delete user"))
+                    .catch(err => res.status(400).json('Error: ' + err));
+                })
+                .catch(err => res.status(400).json('Error: ' + err));
+            })
+            .catch(err => res.status(400).json('Error: ' + err));
+        })
+        .catch(err => res.status(400).json('Error: ' + err));
+        
+    })
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-router.route('/update/:id').post((req , res) => {
+//Update given userId
+router.route('/update/:id').post(auth, (req , res) => {
+    if(req.user.id != req.params.id)
+        return res.status(400).json({ msg: 'Not permitted' });
     console.log("Update Recruiter")
-    Recruiter.findById(req.params.id)
-    .then(recruiters => {
-        recruiters.name = req.body.name;
-        recruiters.email = req.body.email;
-        recruiters.passowrd = req.body.password;
-        recruiters.phone = req.body.phone;
-        recruiters.bio = req.body.bio;
-        recruiters.save()
-        .then(recruiters => res.json('Successfully updated'))
+    User.findById(req.params.id)
+    .then(users => {
+        Recruiter.findOne({usrid : req.params.id})
+        .then(recruiters => {
+            if(!recruiters) res.status(400).json({ msg: 'Not permitted' });
+            users.name = req.body.name;
+            users.email = req.body.email;
+            users.password = req.body.password;
+            recruiters.usrid = req.params.id;
+            recruiters.phone = req.body.phone;
+            recruiters.bio = req.body.bio;
+            users.save()
+            .then(() => {
+                recruiters.save()
+                .then(() => res.json("Successfully saved!!"))
+                .catch(err => res.status(400).json('Error: ' + err));
+            })
+            .catch(err => res.status(400).json('Error: ' + err));
+        })
         .catch(err => res.status(400).json('Error: ' + err));
     })
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
+// Given usrid find job
+router.route('/:id/jobs').get(auth, (req,res) => {
+    if(req.user.id != req.params.id)
+        return res.status(400).json({ msg: 'Not permitted' });
+    console.log("View all jobs");
+    Job.find({"recruiter": req.params.id})
+    .then(jobs => res.json(jobs))
+    .catch(err => res.status(400).json('Error: ' + err));
+})
+
+// Given usrid, update job details
+router.route('/:id1/updatejob/:id2').post(auth, (req,res) => {
+    if(req.user.id != req.params.id1)
+        return res.status(400).json({ msg: 'Not permitted' });
+    console.log('Update Job Details');
+    Job.findById(req.params.id2)
+    .then(jobs => {
+        if(jobs.recruiter != req.user.id) return res.status(400).json({ msg: 'Not permitted' });
+        jobs.title = req.body.title;
+        jobs.max_applicants = req.body.max_applicants;
+        jobs.max_positions = req.body.max_positions;
+        jobs.posting_date = req.body.posting_date;
+        jobs.type = req.body.type;
+        jobs.duration = req.body.duration;
+        jobs.skills = req.body.kills;
+        jobs.deadline = req.body.deadline;
+        jobs.recruiter = req.params.id1;
+        jobs.salary = req.body.salary;
+        jobs.save()
+        .then(jobs => res.json("Successfully updated"))
+        .catch(err => res.status(400).json('Error: ' + err));
+    })
+    .catch(err => res.status(400).json('Error: ' + err));
+});
+
+
 module.exports = router;
+
+
