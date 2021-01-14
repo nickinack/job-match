@@ -96,14 +96,15 @@ router.route('/update/:id').post(auth, (req , res) => {
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-// Given usrid find job
-router.route('/:id/jobs').get(auth, (req,res) => {
-    if(req.user.id != req.params.id)
-        return res.status(400).json({ msg: 'Not permitted' });
+// Given usrid find jobs of the recruiter.
+router.route('/:id/jobs').post((req,res) => {
+    if(jwt.verify(req.body.token , 'nickinack').id != req.params.id){
+        return res.send({ msg: 'Not permitted' });
+    }
     console.log("View all jobs");
     Job.find({"recruiter": req.params.id})
-    .then(jobs => res.json(jobs))
-    .catch(err => res.status(400).json('Error: ' + err));
+    .then(jobs => res.send(jobs))
+    .catch(err => res.send(2));
 })
 
 // Given usrid, update job details

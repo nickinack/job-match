@@ -109,6 +109,14 @@ class Dashboard extends Component {
         {
             const skillitems = this.state.user.applicant.skills.map((d) => <li key={d}>{d}</li>);
             const langitems = this.state.user.applicant.languages.map((d) => <li key={d}>{d}</li>);
+            const edu = this.state.user.applicant.education.map((d) => 
+            <ul key={d}>
+                <li>{d.college}</li>
+                <li>{d.start_year}</li>
+                <li>{d.end_year}</li>
+            </ul>
+
+            );
             return (
             <div className="container">
             <h1>Hey! You are an applicant!</h1>
@@ -117,6 +125,7 @@ class Dashboard extends Component {
             <div>Rating: {this.state.user.users.rating}</div>
             <div>Skills: {skillitems}</div>
             <div>Languages: {langitems}</div>
+            <div>Education: {edu}</div>
             </div>
             );
         }

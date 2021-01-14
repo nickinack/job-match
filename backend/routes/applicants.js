@@ -103,6 +103,12 @@ router.route('/applications/:id').get(auth, (req,res) => {
 
 // Create application given usrid /usrid/jobid
 router.route('/applications/:id1/:id2').post((req,res) => {
+    if(jwt.verify(req.body.token , 'nickinack').id !== req.params.id1)
+    {
+        console.log(jwt.verify(req.body.token , 'nickinack').id);
+        console.log(req.params.id1);
+        return res.send('Not Permitted!');
+    }
     console.log('Apply for a job');
     Application.findOne({applicant: req.params.id1 , job: req.params.id2})
     .then(alreadyApplied => {
@@ -114,7 +120,7 @@ router.route('/applications/:id1/:id2').post((req,res) => {
                 console.log(jobs);
                 console.log(applicants);
                 if(jobs.active == 0) return res.send('Not active');
-                if(!applicants) return res.status(400).json({ msg: 'Not permitted' });
+                if(!applicants) return res.send('Not permitted');
                 const applicant = req.params.id1;
                 const job = req.params.id2;
                 const sop = req.body.sop;
@@ -123,11 +129,11 @@ router.route('/applications/:id1/:id2').post((req,res) => {
                 .then(applications => {
                     Application.find({job: req.params.id2})
                     .then(applications => {
-                        if(applications.length > jobs.max_applicants)
+                        if(applications.length >= jobs.max_applicants)
                         {
                             //Change job to inactive
                             Job.updateOne({"_id": req.params.id2} , {"active": 0})
-                            .then(() => {return res.json('Updated to inactive') })
+                            .then(() => {return res.send('Successfully applied') })
                             .catch(err => res.status(400).json('Error: ' + err));
                         }
                         else

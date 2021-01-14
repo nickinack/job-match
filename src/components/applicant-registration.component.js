@@ -184,7 +184,7 @@ class applicantRegister extends Component {
         const lang_len = this.state.languages.length;
         if(lang_len != 0)
         {
-            for(var i = 0 ; i < skill_len ; i++)
+            for(var i = 0 ; i < lang_len ; i++)
             {
                 console.log('In');
                 lang.push(this.state.languages[i].language);
