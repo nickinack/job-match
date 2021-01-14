@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import "bootstrap/dist/js/bootstrap.min.js";
+import "bootstrap/js/src/collapse.js";
 
 export default class Navbar extends Component {
-
+  
     render() {
         return (
             <nav className="navbar navbar-dark bg-dark navbar-expand-lg">
+                <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span className="navbar-toggler-icon"></span>
+                </button>
                 <Link to="/" className="navbar-brand"> Job Match </Link>
                 <div className="collapse navbar-collapse">
                     <ul className="navbar-nav mr-auto">
@@ -13,13 +18,10 @@ export default class Navbar extends Component {
                             <Link to="/" className="nav-link">Introduction</Link>
                         </li>
                         <li className="navbar-item">
-                            <Link to="/register" className="nav-link">Register Applicant</Link>
+                            <Link to="/register" className="nav-link">Register</Link>
                         </li>
                         <li className="navbar-item">
-                            <Link to="/applicant" className="nav-link">View Applicant</Link>
-                        </li>
-                        <li className="navbar-item">
-                            <Link to="/jobs" className="nav-link">View jobs</Link>
+                            <Link to="/login" className="nav-link">Login</Link>
                         </li>
                     </ul> 
                 </div>

@@ -75,6 +75,11 @@ const jobSchema = new Schema({
             year: Number
         },
         required: true
+    },
+
+    active: {
+        type: Number,
+        default: 1
     }
 
 }, {timestamps: true});

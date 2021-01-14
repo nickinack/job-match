@@ -3,18 +3,22 @@ let Job = require('../models/job.model');
 let Application = require('../models/application.model');
 let Recruiter = require('../models/recruiter.model');
 const auth = require('../middleware/auth');
+const jwt = require('jsonwebtoken');
 
-router.route('/viewall').get((req,res) => {
+router.route('/viewall').post((req,res) => {
+    if(!req.body.token) res.send('1');
     console.log('In jobs viewall');
     Job.find()
-    .then(jobs => res.json(jobs))
-    .catch(err => res.status(400).json('Error: ' + err));
+    .then(jobs => res.send(jobs))
+    .catch(err => res.send('Error: ' + err));
 });
 
 // Add a job
-router.route('/add').post(auth, (req,res) => {
+router.route('/add').post((req,res) => {
 
-    console.log('Add jobs');
+    if(!req.body.token) return res.send('Not permitted');
+    const user = jwt.verify(req.body.token , 'nickinack');
+    console.log(user);
     const title = req.body.title;
     const max_applicants = req.body.max_applicants;
     const max_positions = req.body.max_positions;
@@ -26,19 +30,22 @@ router.route('/add').post(auth, (req,res) => {
     const posting_date = req.body.posting_date;
     const salary = req.body.salary;
 
+    if(!title || !max_applicants || !recruiter || !deadline || !skills || !type || !salary)
+        return res.send('Enter the details properly');
+
 
     Recruiter.findOne({usrid: recruiter})
     .then(recruiters => {
-        if(!recruiters || recruiter != req.user.id) {
-        console.log(recruiter , req.user.id);
-        return res.status(400).json({ msg: 'Not a recruiter!' });
+        if(!recruiters || recruiter != user.id) {
+        console.log(recruiter , user.id);
+        return res.send('Not a recruiter!');
         }
         const newJob = new Job({salary,title,max_applicants,max_positions,recruiter,deadline,skills,type,duration,posting_date});
         newJob.save()
-        .then(() => res.json('Successfully added job!'))
-        .catch(err => res.status(400).json('Error: ' + err));
+        .then(() => res.send('1'))
+        .catch(err => res.send('Error: ' + err));
     })
-    .catch(err => res.status(400).json('Error: ' + err));
+    .catch(err => res.send('Error: ' + err));
     
 });
 

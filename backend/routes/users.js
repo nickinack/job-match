@@ -5,6 +5,7 @@ let User = require('../models/user.model');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const auth = require('../middleware/auth');
+require('./config')
 
 
 router.route('/register').post((req , res) => {
@@ -15,25 +16,31 @@ router.route('/register').post((req , res) => {
         const name = req.body.name;
         const email = req.body.email;
         const password = req.body.password;
-        var rating = Number(req.body.rating);
+        var rating = req.body.rating;
         const education = req.body.education;
         const languages = req.body.languages;
         const skills = req.body.skills;
         const type = "Applicant";
 
-        if(!rating)
+        if(!rating){
             rating = Number(0);
+        }
 
         // Check if all fields have been entered correctly
         if(!name || !email || !password)
             return res.status(400).json({ msg: 'Please enter all the fields properly' });
 
+
         // Check if start date is lesser than end date
         if(education){
             for(var i = 0 ; i < education.length ; i++)
             {
+                if(isNaN(Number(education[i].start_year)) ||  isNaN(Number(education[i].end_year))){
+                    return res.send('Enter education fields with a number');
+                }
                 if(Number(education[i].start_year >= Number(education[i].end_year)))
-                    return res.status(400).json({ msg: 'Please enter date fields properly' });
+                    return res.send('Please enter date fields properly');
+
             }
         }
         
@@ -52,11 +59,11 @@ router.route('/register').post((req , res) => {
                     const newApplicant = new Applicant({usrid, rating , education , skills , languages});
                     console.log(newApplicant);
                     newApplicant.save()
-                    .then(applicant => {console.log('created');res.json({token, applicant});})
-                    .catch(err => res.status(400).json('Error: ' + err));
+                    .then(applicant => {console.log(applicant); res.send('1');})
+                    .catch(err => res.send('Error: ' + err));
                     })        
                 })
-                .catch(err => res.status(400).json('Error: ' + err));
+                .catch(err => res.send('Error: ' + err));
                 })
         }) 
         
@@ -73,7 +80,7 @@ router.route('/register').post((req , res) => {
         const type = "Recruiter";
 
         if(!name || !email || !password || !bio || !phone)
-            return res.status(400).json({ msg: 'Please enter all details properly' })
+            return res.send({ msg: 'Please enter all details properly' })
 
         const newUser = new User({name,email,password,type});
 
@@ -87,11 +94,11 @@ router.route('/register').post((req , res) => {
                         const usrid = user._id;
                         const newRecruiter = new Recruiter({usrid, phone , bio});
                         newRecruiter.save()
-                        .then(recruiters => res.json({token,recruiters}))
-                        .catch(err => res.status(400).json('Error: ' + err));
+                        .then(recruiters => res.send('1'))
+                        .catch(err => res.send('Error: ' + err));
                     })
                 })
-                .catch(err => res.status(400).json('Error: ' + err));
+                .catch(err => res.send('Error: ' + err));
             })
         })
     }
@@ -103,21 +110,33 @@ router.route('/register').post((req , res) => {
 
 // Given usrid, find recruiter
 router.route('/login').post((req , res) => {
+    console.log('Logging done');
     const email = req.body.email;
     const password = req.body.password;
     User.findOne({email: email})
     .then(user => {
-        if(!user) return res.status(400).json({msg: 'User does not exist'});
+        if(!user) return res.send({msg: 'User does not exist'});
         bcrypt.compare(password, user.password)
             .then(isMatch => {
-                if(!isMatch) res.status(400).json({msg: 'Wrong password'});
+                if(!isMatch) res.send({msg: 'Wrong password'});
                 jwt.sign({id: user.id} , 'nickinack' , {expiresIn: 3600}, (err , token) => {
                     if(err) throw err;
-                    res.json({token,user})
+                    res.json({token,user});
                 })
             })
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.send('Error: ' + err));
         
     });
 });
+
+router.route('/decode').post((req , res) => {
+    console.log('Decoding in progress');
+    try{
+    res.send(jwt.verify(req.body.token , 'nickinack'))
+    }
+    catch(e) {
+        res.send(e);
+    }
+});
+
 module.exports = router;

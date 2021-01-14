@@ -29,6 +29,12 @@ const applicationSchema = new Schema({
         max: 2,
         default: 0,
         required: true
+    },
+
+    applied : {
+        type: Date,
+        default: Date.now(),
+        required: true
     }
 
 }, {timestamps: true});

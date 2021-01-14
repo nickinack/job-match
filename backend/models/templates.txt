@@ -46,5 +46,6 @@
     "job": //Include ObjectID,
     "sop": "Include SOP"
 }
-
 // Test Recruiter deletion
+
+Job.items.aggregate({ $group: {_id: "$job", users: {$addToSet: "$_id"}, count: {$sum: 1}}});

@@ -14,9 +14,9 @@ router.route('/viewall').get((req , res) => {
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-router.route('/:id').get(auth, (req,res) => {
+router.route('/:id').post((req,res) => {
 
-    if(req.user.id !== req.params.id)
+    if(jwt.verify(req.body.token , 'nickinack').id !== req.params.id)
         return res.status(400).json({ msg: 'Not permitted' });
 
     Recruiter.findOne({usrid: req.params.id})
@@ -26,16 +26,14 @@ router.route('/:id').get(auth, (req,res) => {
         }
         const id = req.params.id;
         User.findById(id)
-        .then(users => res.json(users))
+        .then(users => res.json({users , recruiter}))
         .catch(err => res.status(400).json('Error: ' + err));
     })
     .catch(err => res.status(400).json('Error: ' + err));
 })
 
 // Given usrid, delete recruiter
-router.route('/:id').delete(auth, (req , res) => {
-    if(req.user.id != req.params.id)
-        return res.status(400).json({ msg: 'Not permitted' });
+router.route('/:id').delete( (req , res) => {
 
     console.log("Delete Recruiter")
     Recruiter.findOneAndDelete({usrid: req.params.id})
