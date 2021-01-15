@@ -23,6 +23,25 @@ router.route('/viewall').post((req,res) => {
     .catch(err => res.send('Error: ' + err));
 });
 
+router.route('/viewsome').post((req,res) => {
+    if(!req.body.token) res.send('1');
+    console.log('In jobs viewall');
+    Job.find({_id: {$in: req.body.jobarr}})
+    .then(jobs => {
+        const job_len = jobs.length;
+        var job_rec = [];
+        for(var i = 0 ; i < job_len ; i++)
+        {
+            job_rec.push(jobs[i].recruiter);
+        }
+        Recruiter.find({usrid: {$in: job_rec}})
+        .then(recruiters => res.send({recruiters , jobs}))
+        .catch(err => res.send('Error: ' + err));
+    })
+    .catch(err => res.send('Error: ' + err));
+});
+
+
 // Add a job
 router.route('/add').post((req,res) => {
 

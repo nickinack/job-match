@@ -26,7 +26,7 @@ const applicationSchema = new Schema({
     accept: {
         type: Number,
         min: 0,
-        max: 2,
+        max: 3,
         default: 0,
         required: true
     },

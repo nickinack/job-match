@@ -9,6 +9,8 @@ import Dashboard from "./components/dashboard.component";
 import JobView from "./components/jobview.component";
 import JobAdd from "./components/jobadd.component";
 import Apply from "./components/apply.component";
+import viewApplication from "./components/applicationview.component";
+
 function App() {
   return (
     <Router>
@@ -23,6 +25,7 @@ function App() {
       <Route path="/jobadd" component={JobAdd} />
       <Route path="/jobview" component={JobView} />
       <Route path="/apply" component={Apply} />
+      <Route path="/viewapp" component={viewApplication} />
     </div>
     </Router>
   );

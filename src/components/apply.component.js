@@ -33,9 +33,10 @@ class Apply extends Component {
 
         const job = localStorage.getItem('jobid');
 
-        if(!User.token || !job)
+        if(!User.token || !job || User.type !== 'Applicant')
         {
             alert('Not permitted');
+            this.props.history.push('/login');
         }
 
         this.setState({jobid: job});
@@ -44,7 +45,7 @@ class Apply extends Component {
         .then(res => {
             if(!res.data.id) {
                 alert('Not permitted');
-                this.props.history.push('/');
+                this.props.history.push('/login');
             }
 
             else {
@@ -67,6 +68,23 @@ class Apply extends Component {
             token: localStorage.getItem('token'),
             sop: this.state.sop
         }
+
+        const joburl = "http://localhost:5000/jobs/" + this.state.jobid;
+        axios.get(joburl)
+        .then(jobs => {
+            console.log("HEYYYYYY");
+            const cur_date = new Date();
+            console.log(cur_date);
+            const cur_stamp = cur_date.getTime();
+            const deadline_stamp = Date.parse(jobs.data.deadline);
+            if(cur_stamp > deadline_stamp)
+            {
+                alert('Deadline Passed , cant apply');
+                this.props.history.push('/dashboard');
+            }
+
+        })
+        .catch(error => console.log(error));
         const url = "http://localhost:5000/applicants/applications/" + this.state.applicantid + "/" + this.state.jobid;
         console.log(url);
         axios.post(url , newApplication)
@@ -76,6 +94,7 @@ class Apply extends Component {
             this.props.history.push('/jobview');
             
         })
+        .catch(error => console.log(error));
     }
 
     render() {

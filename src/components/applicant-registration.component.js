@@ -33,7 +33,7 @@ class applicantRegister extends Component {
             password: '',
             rating: 0,
             skills: [{skill: ''}],
-            languages: [{language: ''}],
+            languages: [{language: 'C'} , {language: 'C++'}],
             education: [{college: "" , start_year: 0 , end_year: 0}]
         }
     }

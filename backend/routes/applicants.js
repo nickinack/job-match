@@ -85,19 +85,20 @@ router.route('/update/:id').post(auth, (req , res) => {
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-// View applications given applicantid
-router.route('/applications/:id').get(auth, (req,res) => {
-    if(req.user.id != req.params.id)
-        return res.status(400).json({ msg: 'Not permitted' });
+// View applications given usrid
+router.route('/applications/:id').post((req,res) => {
+    if(jwt.verify(req.body.token , 'nickinack').id !== req.params.id)
+        return res.send('1');
     console.log("View all applications by id")
     Applicant.findOne({usrid: req.params.id})
     .then(applicants => {
-        if(!applicants) return res.status(400).json({ msg: 'Not permitted' });
+        console.log(applicants);
+        if(!applicants) return res.send('1');
         Application.find({applicant : req.params.id})
-        .then(applications => {res.json(applications)})
-        .catch(err => res.status(400).json('Error: ' + err));
+        .then(applications => res.send(applications))
+        .catch(err => res.send('Error: ' + err));
     })
-    .catch(err => res.status(400).json('Error: ' + err));
+    .catch(err => res.send('Error: ' + err));
     
 });
 
@@ -112,7 +113,7 @@ router.route('/applications/:id1/:id2').post((req,res) => {
     console.log('Apply for a job');
     Application.findOne({applicant: req.params.id1 , job: req.params.id2})
     .then(alreadyApplied => {
-        if(alreadyApplied) res.status(400).json({ msg: 'Already applied!' });
+        if(alreadyApplied) return res.send('Already applied!');
         Applicant.findOne({usrid: req.params.id1})
         .then(applicants => {
             Job.findById(req.params.id2)
