@@ -10,6 +10,7 @@ import JobView from "./components/jobview.component";
 import JobAdd from "./components/jobadd.component";
 import Apply from "./components/apply.component";
 import viewApplication from "./components/applicationview.component";
+import appViewJob from "./components/appviewjob.component";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
       <Route path="/jobview" component={JobView} />
       <Route path="/apply" component={Apply} />
       <Route path="/viewapp" component={viewApplication} />
+      <Route path="/appviewjob" component={appViewJob} />
     </div>
     </Router>
   );

@@ -2,6 +2,8 @@ const router = require('express').Router();
 let Job = require('../models/job.model');
 let Application = require('../models/application.model');
 let Recruiter = require('../models/recruiter.model');
+let Applicant = require('../models/applicant.model');
+let User = require('../models/user.model');
 const auth = require('../middleware/auth');
 const jwt = require('jsonwebtoken');
 
@@ -100,7 +102,7 @@ router.route('/:id').get((req,res) => {
 });
 
 // Delete a job
-router.route('/:id').delete(auth , (req,res) => {
+router.route('/:id').delete((req,res) => {
     console.log('Delete job by id');
     Job.findById(req.params.id)
     .then(jobs => {
@@ -117,17 +119,41 @@ router.route('/:id').delete(auth , (req,res) => {
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-// Look at all the applications for a job
-router.route('/:id/applications').get(auth, (req,res) => {
+// Look at all the applications and user details for a job
+router.route('/:id/applications').post((req,res) => {
     console.log('View all applications for a job');
+    const user = jwt.verify(req.body.token , 'nickinack');
     Job.findById(req.params.id)
     .then(jobs => {
-        if(!jobs || jobs.recruiter != req.user.id) return res.status(400).json({ msg: 'Not permitted!' });
+        if(!jobs) {
+            console.log('No such job');
+            return res.send('1');
+        } 
+        if(jobs.recruiter != user.id) {
+            console.log(user.id , jobs.recruiter);
+            return res.send('1');
+        } 
         Application.find({"job" : req.params.id})
-        .then(applications => res.json(applications))
-        .catch(err => res.status(400).json('Error: ' + err));
+        .then(applications => {
+            var applicantids = [];
+            const len = applications.length;
+            for(var i = 0 ; i < len ; i++)
+            {
+                applicantids.push(applications[i].applicant);
+            } 
+            Applicant.find({usrid: {$in: applicantids}})
+            .then(applicants => {
+                User.find({_id: {$in: applicantids}})
+                .then(users => {
+                    res.send({applications , applicants , users});
+                })
+                .catch(err => res.send('Error: ' + err));
+            })
+            .catch(err => res.send('Error: ' + err));
+        })
+        .catch(err => res.send('Error: ' + err));
     })
-    .catch(err => res.status(400).json('Error: ' + err));  
+    .catch(err => res.send('Error: ' + err));  
 });
 
 // Recruiter application update 

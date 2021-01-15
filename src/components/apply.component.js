@@ -31,7 +31,7 @@ class Apply extends Component {
             token: localStorage.getItem('token')
         }
 
-        const job = localStorage.getItem('jobid');
+        const job = this.props.location.state;
 
         if(!User.token || !job || User.type !== 'Applicant')
         {
@@ -90,9 +90,7 @@ class Apply extends Component {
         axios.post(url , newApplication)
         .then(res => {
             alert(res.data);
-            localStorage.setItem('jobid' , '');
-            this.props.history.push('/jobview');
-            
+            this.props.history.push('/jobview');   
         })
         .catch(error => console.log(error));
     }

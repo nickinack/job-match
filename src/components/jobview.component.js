@@ -101,11 +101,12 @@ class JobView extends Component {
     
     onClickApp(d) {
         localStorage.setItem('jobid' , d._id);
-        this.props.history.push('/apply');
+        this.props.history.push({pathname: '/apply' , state: d._id});
     }
 
     onClickRec(d) {
-        console.log(d.title);
+        localStorage.setItem('jobid' , d._id);
+        this.props.history.push({pathname: '/appviewjob' , state: d._id});
     }
 
     renderJobApp(d) {
@@ -139,7 +140,7 @@ class JobView extends Component {
                         </tr>
                         <tr className="table-danger">Max Applicants: {d.max_applicants}</tr>
                         <tr className="table-danger">Max Positions: {d.max_positions}</tr>
-                        <a href="#"><div onClick={() => this.onClickRec(d)}>Update</div></a>
+                        <a href="#"><div onClick={() => this.onClickRec(d)}>Look at applications</div></a>
                         </tbody>
             </table>
         );
