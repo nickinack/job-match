@@ -12,6 +12,9 @@ class appViewJob extends Component {
         this.componentWillMount = this.componentWillMount.bind(this);
         this.renderApps = this.renderApps.bind(this);
         this.renderAppDetails = this.renderAppDetails.bind(this);
+        this.onAccept = this.onAccept.bind(this);
+        this.onReject = this.onReject.bind(this);
+        this.onShortlist = this.onShortlist.bind(this);
         this.state = {
             loading: true,
             applicants: {},
@@ -62,42 +65,85 @@ class appViewJob extends Component {
 
     }
 
-    onAccept() {
+    onAccept(d) {
         console.log('Accept');
+        const url = 'http://localhost:5000/jobs/updateapplication/' + d._id;
+        const details = {
+            accept: 2,
+            token: localStorage.getItem('token')
+        }
+        axios.post(url , details)
+        .then(result => {
+            if(result.data == 1) alert('Try again, something went wrong!');
+            else{
+                alert(result.data);
+                this.props.history.push({pathname: '/jobview' , state: d._id});
+            }
+        })
+        .catch((error) => console.log(error));
     }
 
-    onShortlist() {
+    onShortlist(d) {
         console.log('Shortlist');
+        const url = 'http://localhost:5000/jobs/updateapplication/' + d._id;
+        const details = {
+            accept: 1,
+            token: localStorage.getItem('token')
+        }
+        axios.post(url , details)
+        .then(result => {
+            if(result.data == 1) alert('Try again, something went wrong!');
+            if(result.data == 2) alert('Surpassed count for acceptance');
+            else{
+                alert(result.data);
+                this.props.history.push({pathname: '/jobview' , state: d._id});
+            }
+        })
+        .catch((error) => console.log(error));
     }
 
-    onReject() {
+    onReject(d) {
         console.log('Reject');
+        const url = 'http://localhost:5000/jobs/updateapplication/' + d._id;
+        const details = {
+            accept: 3,
+            token: localStorage.getItem('token')
+        }
+        axios.post(url , details)
+        .then(result => {
+            if(result.data == 1) alert('Try again, something went wrong!');
+            else{
+                alert(result.data);
+                this.props.history.push({pathname: '/jobview' , state: d._id});
+            }
+        })
+        .catch((error) => console.log(error));
     }
 
-    onRenderButtons(accept) {
+    onRenderButtons(d) {
 
-        if(accept == 0)
+        if(d.accept == 0)
         {
             return (
                 <Container>
-                <Button size="sm" variant="outline-primary" onClick={() => this.onAccept()}>Accept</Button>{' '}
-                <Button size="sm" variant="outline-warning" onClick={() => this.onShortlist()}>Shortlist</Button>{' '}
-                <Button size="sm" variant="outline-danger" onClick={() => this.onReject()}>Reject</Button>
+                <Button size="sm" variant="outline-primary" onClick={() => this.onAccept(d)}>Accept</Button>{' '}
+                <Button size="sm" variant="outline-warning" onClick={() => this.onShortlist(d)}>Shortlist</Button>{' '}
+                <Button size="sm" variant="outline-danger" onClick={() => this.onReject(d)}>Reject</Button>
                 </Container>
             )
         }
 
-        if(accept == 1)
+        if(d.accept == 1)
         {
             return (
                 <Container>
-                <Button size="sm" variant="outline-primary" onClick={() => this.onAccept()}>Accept</Button>{' '}
-                <Button size="sm" variant="outline-danger" onClick={() => this.onReject()}>Reject</Button>
+                <Button size="sm" variant="outline-primary" onClick={() => this.onAccept(d)}>Accept</Button>{' '}
+                <Button size="sm" variant="outline-danger" onClick={() => this.onReject(d)}>Reject</Button>
                 </Container>
             )
         }
 
-        if(accept == 2)
+        if(d.accept == 2)
         {
             return (
                 <Container>Accepted!</Container>
@@ -149,6 +195,30 @@ class appViewJob extends Component {
         }
     }
 
+    renderSkills(e) {
+
+        const skillitems = this.getApplicantDetails(e).skills.map((d) => <li key={d}>{d}</li>);
+        return skillitems;
+        
+    }
+
+    renderLanguages(e) {
+        const langitems = this.getApplicantDetails(e).languages.map((d) => <li key={d}>{d}</li>);
+        return langitems;
+    }
+
+    getStatus(status) {
+
+        if(status == 0)
+            return 'Submitted!';
+        else if(status == 1)
+            return 'Shortlisted!';
+        else if(status == 2)
+            return 'Accepted!';
+        else if(status == 3)
+            return 'Rejected :(';
+    }
+
     renderAppDetails(d) {
         if(d.accept == 3)
         {
@@ -158,10 +228,14 @@ class appViewJob extends Component {
         <table className="table table-bordered">
                     <tbody>
                     <tr className="table-danger">Name: {this.getApplicantDetails(d.applicant).name}</tr>
-                    <tr className="table-danger">Job: {d.job}</tr>
+                    <tr className="table-danger">Name: {this.getApplicantDetails(d.applicant).email}</tr>
+                    <tr className="table-danger">Date applied: {Date(d.applied)}</tr>
                     <tr className="table-danger">SOP: {d.sop}</tr>
-                    <tr className="table-danger">Status: {d.accept} </tr>
-                    {this.onRenderButtons(d.accept)}
+                    <tr className="table-danger">Skills: {this.renderSkills(d.applicant)}</tr>
+                    <tr className="table-danger">Skills: {this.renderLanguages(d.applicant)}</tr>
+                    <tr className="table-danger">Status: {this.getStatus(d.accept)} </tr>
+
+                    {this.onRenderButtons(d)}
                     </tbody>
         </table>
         );

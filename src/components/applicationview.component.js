@@ -119,7 +119,11 @@ class viewApplication extends Component {
             {
                 if(jobid === this.state.jobs[i]._id)
                 {
-                    return this.getRecruiterDetails(this.state.jobs[i].recruiter);
+                    const jobDetails = {
+                        recruiter: this.getRecruiterDetails(this.state.jobs[i].recruiter),
+                        title: this.state.jobs[i].title
+                    }
+                    return jobDetails
                 }
             }
         }
@@ -151,8 +155,9 @@ class viewApplication extends Component {
             const job = this.state.applications.map((d) => 
             <table className="table table-bordered">
                 <tbody>
-                <tr className="table-danger">Phone Number of Recruiter: {this.getJobDetails(d.job).phone}</tr>
-                <tr className="table-danger">Recruiter Bio : {this.getJobDetails(d.job).bio}</tr>
+                <tr className="table-danger">Phone Number of Recruiter: {this.getJobDetails(d.job).recruiter.phone}</tr>
+                <tr className="table-danger">Recruiter Bio : {this.getJobDetails(d.job).recruiter.bio}</tr>
+                <tr className="table-danger">Title: {this.getJobDetails(d.job).title}</tr>
                 <tr className="table-danger">Your SOP: {d.sop}</tr>
                 <tr className="table-danger">Status: {this.getStatus(d.accept)}</tr>
                 </tbody>

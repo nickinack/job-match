@@ -172,7 +172,7 @@ class JobView extends Component {
         {
 
             const job = this.state.jobs.map((d) => 
-            <div> {d.active==1 ? this.renderJobRec(d) : '' } </div>
+            <div> {(d.active==1 || d.active==2) ? this.renderJobRec(d) : '' } </div>
             );
             return (
                 <div>{job}</div>

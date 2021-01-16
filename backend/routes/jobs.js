@@ -157,20 +157,42 @@ router.route('/:id/applications').post((req,res) => {
 });
 
 // Recruiter application update 
-router.route('/updateapplication/:id').post(auth, (req,res) => {
+router.route('/updateapplication/:id').post((req,res) => {
+    const user = jwt.verify(req.body.token , 'nickinack');
     console.log('Update Application Details');
     Application.findById(req.params.id)
     .then(applications => {
         Job.findById(applications.job)
         .then(jobs => {
-            if(jobs.recruiter != req.user.id)  return res.status(400).json({ msg: 'Not a recruiter!' })
-            Application.updateOne({"_id": req.params.id}, {$set: {"accept" : req.body.accept}})
-            .then(applications => res.json(applications))
-            .catch(err => res.status(400).json('Error: ' + err));
+            if(jobs.recruiter != user.id)  return res.send('1');
+            Application.find({'job': jobs._id , 'accept': 2})
+            .then(result => {
+                console.log(result);
+                if(result.length >= jobs.max_positions-1 && req.body.accept == 2) {
+                    Application.updateOne({"_id": req.params.id}, {$set: {"accept" : req.body.accept}})
+                    .then(results => {
+                        Application.updateOne({"job": jobs._id , "accept": {"$in": ['0' , '1']}}, {$set: {"accept" : 3}})
+                        .then(results => {
+                            Job.updateOne({"_id": jobs.id} , {"$set": {"active": 2}})
+                            .then(jobUpdate => res.send('Successful'))
+                            .catch(err => res.send('Error: ' + err));
+                        })
+                        .catch(err => res.send('Error: ' + err));
+                    });
+                    
+                }
+                else {
+                Application.updateOne({"_id": req.params.id}, {$set: {"accept" : req.body.accept}})
+                .then(result => res.send('Successful!'))
+                .catch(err => res.send('Error: ' + err));
+                }
+
+            })
+            .catch(err => res.send('Error: ' + err));
         })
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.send('Error: ' + err));
     })
-    .catch(err => res.status(400).json('Error: ' + err));
+    .catch(err => res.send('Error: ' + err));
 });
 
 module.exports = router;
