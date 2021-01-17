@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import Container from 'react-bootstrap/Container'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { withRouter } from "react-router-dom";
+import StarRatings from 'react-star-ratings';
 const jwt = require('jsonwebtoken');
 
 
@@ -109,6 +110,31 @@ class JobView extends Component {
         this.props.history.push({pathname: '/appviewjob' , state: d._id});
     }
 
+    changeRating( newRating, name ) {
+        console.log(newRating);
+        const url = "http://localhost:5000/jobs/updateratings/" + name;
+        const requirements = {
+            token: localStorage.getItem('token'),
+            rating: newRating
+        };
+        axios.post(url , requirements)
+        .then(result => {
+            if(result.data == 1)
+            {
+                alert('Not Authorized!');
+                this.props.history.push('/login');
+            }
+            else if(result.data == 2)
+            {
+                alert('Already Rated');
+            }
+            else{
+                alert('Successful!');
+                window.location.reload(false);
+            }
+        })
+      }
+
     renderJobApp(d) {
         return (
         <table className="table table-bordered">
@@ -121,6 +147,7 @@ class JobView extends Component {
                     {this.renderSkills(d.skills)}
                     </tr>
                     <tr className="table-danger"> Recruiter Contact: {this.getRecruiter(d.recruiter , 'phone')}</tr>
+                    <StarRatings rating={d.rating} starRatedColor="blue" changeRating={this.changeRating} numberOfStars={5} name={d._id}/>
                     <a href="#"><div onClick={() => this.onClickApp(d)}>Apply</div></a>
                     </tbody>
         </table>

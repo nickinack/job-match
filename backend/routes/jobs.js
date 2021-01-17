@@ -7,6 +7,7 @@ let User = require('../models/user.model');
 const auth = require('../middleware/auth');
 const jwt = require('jsonwebtoken');
 
+
 router.route('/viewall').post((req,res) => {
     if(!req.body.token) res.send('1');
     console.log('In jobs viewall');
@@ -43,10 +44,9 @@ router.route('/viewsome').post((req,res) => {
     .catch(err => res.send('Error: ' + err));
 });
 
-
 // Add a job
 router.route('/add').post((req,res) => {
-
+    
     if(!req.body.token) return res.send('Not permitted');
     const user = jwt.verify(req.body.token , 'nickinack');
     console.log(user);
@@ -83,7 +83,7 @@ router.route('/add').post((req,res) => {
 // Given Job iD, update the job
 router.route('/update/:id').post(auth, (req,res) => {
 
-    Jobs.findbyId(id)
+    Jobs.findbyId(req.params.id)
     .then(jobs => {
         if(req.user.id != jobs.recruiter) return res.status(400).json({ msg: 'Not a recruiter!' });
         Jobs.updateOne({"_id": id} , {"max_applicants": req.body.max_applicants, "max_positions": req.body.max_positions, "deadline": req.params.deadline})
@@ -95,7 +95,7 @@ router.route('/update/:id').post(auth, (req,res) => {
 
 // Look into a job
 router.route('/:id').get((req,res) => {
-    console.log('View job by id');
+    console.log('View job by id');                                         
     Job.findById(req.params.id)
     .then(jobs => res.json(jobs))
     .catch(err => res.status(400).json('Error: ' + err));
@@ -188,6 +188,36 @@ router.route('/updateapplication/:id').post((req,res) => {
                 }
 
             })
+            .catch(err => res.send('Error: ' + err));
+        })
+        .catch(err => res.send('Error: ' + err));
+    })
+    .catch(err => res.send('Error: ' + err));
+});
+
+// Update ratings for a job
+router.route('/updateratings/:id').post((req,res) => {
+
+    const user = jwt.verify(req.body.token , 'nickinack');
+    Applicant.findOne({"usrid": user.id})
+    .then(applicant => {
+        if(!applicant) return res.send('1');
+        Job.findById(req.params.id)
+        .then(job => {
+            const len = job.appRated.length;
+            if(len != 0)
+            {
+                for(var i = 0 ; i < len ; i++)
+                {
+                    if(user.id === job.appRated[i])
+                    {
+                        return res.send('2');
+                    }
+                }
+            }
+            const new_rating = ((len)*job.rating + req.body.rating)/(len+1);
+            Job.updateOne({"_id": req.params.id} , { $set: {"rating" : new_rating }  ,  $addToSet: {"appRated": user.id} }  )
+            .then(jobUpdate => res.send('Successfully rated'))
             .catch(err => res.send('Error: ' + err));
         })
         .catch(err => res.send('Error: ' + err));

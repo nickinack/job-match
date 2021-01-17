@@ -2,6 +2,7 @@ const router = require('express').Router();
 let Applicant = require('../models/applicant.model');
 let Application = require('../models/application.model');
 let User = require('../models/user.model');
+let Recruiter = require('../models/recruiter.model');
 const bcrpyt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
@@ -11,7 +12,7 @@ const Job = require('../models/job.model');
 router.route('/viewall').get((req , res) => {
     console.log("View all Applicants")
     Applicant.find()
-    .then(applicants => res.json(applicants))
+    .then(applicants => res.send(applicants))
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
@@ -102,18 +103,32 @@ router.route('/applications/:id').post((req,res) => {
     
 });
 
+
 // Create application given usrid /usrid/jobid
 router.route('/applications/:id1/:id2').post((req,res) => {
     if(jwt.verify(req.body.token , 'nickinack').id !== req.params.id1)
     {
         console.log(jwt.verify(req.body.token , 'nickinack').id);
-        console.log(req.params.id1);
         return res.send('Not Permitted!');
     }
     console.log('Apply for a job');
-    Application.findOne({applicant: req.params.id1 , job: req.params.id2})
-    .then(alreadyApplied => {
-        if(alreadyApplied) return res.send('Already applied!');
+    Application.find({applicant: req.params.id1})
+    .then(applied => {
+        const len = applied.length;
+        const active_app = 0;
+        if(len != 0) {
+            for(var i = 0 ; i < len ; i++) {
+                console.log(applied[i]);
+                if(applied[i].accept == 2){
+                    return res.send('Already accepted into a job');
+                }
+                else if(applied[i].accept == 0 || applied[i].accept == 1)
+                    active_app = active_app + 1;
+                else if(applied[i].job == req.params.id2)
+                    return res.send('Already applied!');
+            }
+        }
+        if(active_app >= 10) return res.send('More than 10 active applications');
         Applicant.findOne({usrid: req.params.id1})
         .then(applicants => {
             Job.findById(req.params.id2)
@@ -153,4 +168,35 @@ router.route('/applications/:id1/:id2').post((req,res) => {
     .catch(err => res.status(400).json('Error: ' + err));
     
 })
+
+router.route('/updateratings/:id').post((req,res) => {
+    
+    const user = jwt.verify(req.body.token , 'nickinack');
+    Recruiter.findOne({"usrid": user.id})
+    .then(recruiter => {
+        if(!recruiter) return res.send('1');
+        Applicant.findOne({"usrid": req.params.id})
+        .then(applicant => {
+            const len = applicant.recRated.length;
+            if(len != 0)
+            {
+                for(var i = 0 ; i < len ; i++)
+                {
+                    if(user.id === applicant.recRated[i])
+                    {
+                        return res.send('2');
+                    }
+                }
+            }
+            const new_rating = ((len)*applicant.rating + req.body.rating)/(len+1);
+            console.log(new_rating , user.id);
+            Applicant.updateOne({"usrid": req.params.id} , { $set: {"rating" : new_rating }  ,  $addToSet: {"recRated": user.id} }  )
+            .then(appUpdate => res.send('Successfully rated'))
+            .catch(err => res.send('Error: ' + err));
+        })
+        .catch(err => res.send('Error: ' + err));
+    })
+    .catch(err => res.send('Error: ' + err));
+});
+
 module.exports = router;

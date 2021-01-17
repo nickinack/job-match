@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import Container from 'react-bootstrap/Container'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { withRouter } from "react-router-dom";
+import StarRatings from 'react-star-ratings';
 import Button from 'react-bootstrap/Button'
 
 class appViewJob extends Component {
@@ -26,7 +27,7 @@ class appViewJob extends Component {
     componentWillMount() {
 
         const User = {
-            token: localStorage.getItem('token'),
+            token: localStorage.getItem('token'),           
             type: localStorage.getItem('type')
         }
 
@@ -46,7 +47,7 @@ class appViewJob extends Component {
         {
             this.props.history.push('/jobview');
         }
-        const url = "http://localhost:5000/jobs/" + jobid + "/applications";
+        const url = "http://localhost:5000/jobs/" + jobid + "/applications";     
         axios.post(url , tokenVerify)
         .then(results => {
             if(results.data == 1) {
@@ -163,7 +164,9 @@ class appViewJob extends Component {
                         education: this.state.applicants[i].education,
                         languages: this.state.applicants[i].languages,
                         email: this.getUserDetails(applicantid , 'email'),
-                        name: this.getUserDetails(applicantid , 'name')
+                        name: this.getUserDetails(applicantid , 'name'),
+                        rating: this.state.applicants[i].rating,
+                        usrid: this.state.applicants[i].usrid
                     }
 
                     console.log(applicantDetails);
@@ -219,6 +222,32 @@ class appViewJob extends Component {
             return 'Rejected :(';
     }
 
+    changeRating( newRating , name ) {
+        console.log(name);
+        const url = "http://localhost:5000/applicants/updateratings/" + name;
+        const requirements = {
+            token: localStorage.getItem('token'),
+            rating: newRating
+        };
+        axios.post(url , requirements)
+        .then(result => {
+            if(result.data == 1)
+            {
+                alert('Not Authorized!');
+                this.props.history.push('/login');
+            }
+            else if(result.data == 2)
+            {
+                alert('Already Rated');
+            }
+            else{
+                alert('Successful!');
+                console.log(result.data);
+                window.location.reload(false);
+            }
+        })
+    }
+
     renderAppDetails(d) {
         if(d.accept == 3)
         {
@@ -234,7 +263,7 @@ class appViewJob extends Component {
                     <tr className="table-danger">Skills: {this.renderSkills(d.applicant)}</tr>
                     <tr className="table-danger">Skills: {this.renderLanguages(d.applicant)}</tr>
                     <tr className="table-danger">Status: {this.getStatus(d.accept)} </tr>
-
+                    <StarRatings rating={this.getApplicantDetails(d.applicant).rating} starRatedColor="blue" changeRating={this.changeRating} numberOfStars={5} name={this.getApplicantDetails(d.applicant).usrid}/>
                     {this.onRenderButtons(d)}
                     </tbody>
         </table>

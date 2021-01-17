@@ -39,7 +39,9 @@ const applicantSchema = new Schema({
             type:String,
             required: true
         }
-    ]
+    ],
+
+    recRated: [String]
 
 }, {timestamps: true});
 
