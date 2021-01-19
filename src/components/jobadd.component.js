@@ -156,6 +156,12 @@ class Login extends Component {
                 skill.push(this.state.skills[i].skill);
             }
         }
+
+        if(isNaN(Number(this.state.max_applicants)) || isNaN(Number(this.state.max_positions)))
+        {
+            alert('Enter numbers for Max Applicants/Max Positions');
+            window.location.reload(false);
+        }
         const newJob = {
             token: localStorage.getItem('token'),
             deadline: deadlineDate,

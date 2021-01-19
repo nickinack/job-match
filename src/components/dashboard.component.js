@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { withRouter } from "react-router-dom";
-const jwt = require('jsonwebtoken');
+import Button from 'react-bootstrap/Button'
+
 
 
 
@@ -98,6 +99,13 @@ class Dashboard extends Component {
          
       }
 
+      onUpdate(d) {
+          if(this.state.type === 'Applicant')
+            this.props.history.push({pathname: "/updateapplicant" });
+          else if(this.state.type === 'Recruiter')
+            this.props.history.push({pathname: "/updaterecruiter" });
+      }
+
       renderUser() { 
         if(this.state.loading)
         {
@@ -126,6 +134,7 @@ class Dashboard extends Component {
             <div>Skills: {skillitems}</div>
             <div>Languages: {langitems}</div>
             <div>Education: {edu}</div>
+            <Button size="sm" variant="outline-primary" onClick={() => this.onUpdate()}>Update</Button>
             </div>
             );
         }
@@ -138,6 +147,7 @@ class Dashboard extends Component {
             <div>Email: {this.state.user.users.email}</div>
             <div>Phone: {this.state.user.recruiter.phone}</div>
             <div>Bio: {this.state.user.recruiter.bio}</div>
+            <Button size="sm" variant="outline-primary" onClick={() => this.onUpdate()}>Update</Button>
             </div>
             );
         }

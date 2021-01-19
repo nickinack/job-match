@@ -11,6 +11,9 @@ import JobAdd from "./components/jobadd.component";
 import Apply from "./components/apply.component";
 import viewApplication from "./components/applicationview.component";
 import appViewJob from "./components/appviewjob.component";
+import updateJob from "./components/updatejob.component";
+import updateApplicant from "./components/updateapplicant.component";
+import updateRecruiter from "./components/updaterecruiter.component";
 
 function App() {
   return (
@@ -28,6 +31,9 @@ function App() {
       <Route path="/apply" component={Apply} />
       <Route path="/viewapp" component={viewApplication} />
       <Route path="/appviewjob" component={appViewJob} />
+      <Route path="/updatejob" component={updateJob} />
+      <Route path="/updateapplicant" component={updateApplicant} />
+      <Route path="/updaterecruiter" component={updateRecruiter} />
     </div>
     </Router>
   );

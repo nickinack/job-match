@@ -8,6 +8,8 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const auth = require('../middleware/auth');
 const Job = require('../models/job.model');
+const bcrypt = require('bcryptjs');
+
 
 router.route('/viewall').get((req , res) => {
     console.log("View all Applicants")
@@ -56,34 +58,72 @@ router.route('/:id').delete(auth , async (req , res) => {
 });
 
 //Update given userId
-router.route('/update/:id').post(auth, (req , res) => {
-    if(req.user.id != req.params.id)
-        return res.status(400).json({ msg: 'Not permitted' });
+router.route('/update/:id').post((req , res) => {
+    const name = req.body.name;
+    const email = req.body.email;
+    const password = req.body.password;
+    var rating = req.body.rating;
+    const education = req.body.education;
+    const languages = req.body.languages;
+    const skills = req.body.skills;
+
+    if(!rating){
+        rating = Number(0);
+    }
+
+    // Check if all fields have been entered correctly
+    if(!name || !email || !password)
+        return res.status(400).json({ msg: 'Please enter all the fields properly' });
+
+
+    // Check if start date is lesser than end date
+    if(education){
+        for(var i = 0 ; i < education.length ; i++)
+        {
+            if(isNaN(Number(education[i].start_year)) ||  isNaN(Number(education[i].end_year))){
+                return res.send('Enter education fields with a number');
+            }
+            if(Number(education[i].start_year >= Number(education[i].end_year)))
+                return res.send('Please enter date fields properly');
+
+        }
+    }
+    
+    user = jwt.verify(req.body.token , 'nickinack');
+    if(user.id !== req.params.id)
+        return res.send('Not permitted');
     console.log("Update Applicant")
     User.findById(req.params.id)
     .then(users => {
         Applicant.findOne({usrid : req.params.id})
         .then(applicants => {
-            if(!applicants) return res.status(400).json({ msg: 'Not permitted' });
+            if(!applicants) return res.send('Not permitted');
             users.name = req.body.name;
             users.email = req.body.email;
             users.password = req.body.password;
             applicants.rating = req.body.rating;
             applicants.usrid = req.params.id;
-            applicants.languages = req.params.languages;
-            applicants.education = req.params.education;
-            applicants.skills = req.params.skills;
-            users.save()
-            .then(() => {
-                applicants.save()
-                .then(() => res.json("Successfully saved!!"))
-                .catch(err => res.status(400).json('Error: ' + err));
+            applicants.languages = req.body.languages;
+            applicants.education = req.body.education;
+            applicants.skills = req.body.skills;
+            bcrypt.genSalt(10, (err,salt) => {
+                bcrypt.hash(users.password, salt, (err, hash) => {
+                    if(err) throw err;
+                    users.password = hash;
+                    users.save()
+                    .then(() => {
+                        applicants.save()
+                        .then(() => {console.log('Inside Applicant save'); return res.send('1');})
+                        .catch(err => res.send('Error: ' + err));
+                    })
+                    .catch(err => res.send('Error: ' + err));
+                })
             })
-            .catch(err => res.status(400).json('Error: ' + err));
+
         })
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.send('Error: ' + err));
     })
-    .catch(err => res.status(400).json('Error: ' + err));
+    .catch(err => res.send('Error: ' + err));
 });
 
 // View applications given usrid

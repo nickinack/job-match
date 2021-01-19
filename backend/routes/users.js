@@ -12,7 +12,7 @@ router.route('/register').post((req , res) => {
 
     if(req.body.type === "Applicant"){
         console.log("Add applicant")
-
+        const type = "Applicant";
         const name = req.body.name;
         const email = req.body.email;
         const password = req.body.password;
@@ -20,7 +20,6 @@ router.route('/register').post((req , res) => {
         const education = req.body.education;
         const languages = req.body.languages;
         const skills = req.body.skills;
-        const type = "Applicant";
 
         if(!rating){
             rating = Number(0);

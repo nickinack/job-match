@@ -81,14 +81,42 @@ router.route('/add').post((req,res) => {
 });
 
 // Given Job iD, update the job
-router.route('/update/:id').post(auth, (req,res) => {
-
-    Jobs.findbyId(req.params.id)
+router.route('/update/:id').post((req,res) => {
+    const user = jwt.verify(req.body.token , 'nickinack');
+    console.log('Job Updation');
+    Job.findOne({"_id": req.params.id})
     .then(jobs => {
-        if(req.user.id != jobs.recruiter) return res.status(400).json({ msg: 'Not a recruiter!' });
-        Jobs.updateOne({"_id": id} , {"max_applicants": req.body.max_applicants, "max_positions": req.body.max_positions, "deadline": req.params.deadline})
-        .then(jobs => res.json(jobs))
+        if(user.id != jobs.recruiter) return res.send('1');
+        Application.find({job: req.params.id})
+        .then(applications => {
+            if(applications.length != 0)
+            {
+                var max_positions = 0;
+
+                if(applicants.length > req.body.max_applicants)
+                {
+                    return res.send('2');
+                }
+
+                for(var i = 0 ; i < applications.length ; i++)
+                {
+                    if(applications[i].accept == 2)
+                    {
+                        max_positions = max_positions + 1;
+                    }
+                }
+                if(max_positions > req.body.max_positions)
+                {
+                    return res.send('3');
+                }
+
+            }
+            Job.updateOne({"_id": req.params.id} , {$set: {"max_applicants": req.body.max_applicants, "max_positions": req.body.max_positions, "deadline": req.params.deadline}})
+            .then(jobs => res.send('Successfully updated!'))
+            .catch(err => res.status(400).json('Error: ' + err));
+        })
         .catch(err => res.status(400).json('Error: ' + err));
+        
     })
     .catch(err => res.status(400).json('Error: ' + err));
 });
@@ -102,16 +130,17 @@ router.route('/:id').get((req,res) => {
 });
 
 // Delete a job
-router.route('/:id').delete((req,res) => {
+router.route('/delete/:id').post((req,res) => {
+    const user = jwt.verify(req.body.token , 'nickinack');
     console.log('Delete job by id');
     Job.findById(req.params.id)
     .then(jobs => {
-        if(jobs.recruiter != req.user.id) return res.status(400).json({ msg: 'Not permitted!' });
+        if(jobs.recruiter != user.id) return res.send('1');
         Application.deleteMany({job: req.params.id})
         .then(() => {
             console.log("Delete applications associated with the job");
             Job.findByIdAndDelete(req.params.id)
-            .then(() => res.json('Successfully Deleted'))
+            .then(() => res.send('Successfully Deleted'))
             .catch(err => res.status(400).json('Error: ' + err));
         })
         .catch(err => res.status(400).json('Error: ' + err));

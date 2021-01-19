@@ -5,7 +5,7 @@ import Container from 'react-bootstrap/Container'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { withRouter } from "react-router-dom";
 import StarRatings from 'react-star-ratings';
-const jwt = require('jsonwebtoken');
+import Button from 'react-bootstrap/Button'
 
 
 
@@ -110,6 +110,29 @@ class JobView extends Component {
         this.props.history.push({pathname: '/appviewjob' , state: d._id});
     }
 
+    onClickDelete(d) {
+        const TokenVerify = {
+            token: localStorage.getItem("token")
+        }
+        const url = "http://localhost:5000/jobs/delete/" + d._id;
+        axios.post(url , TokenVerify)
+        .then(result => {
+            if(result.data == 1) {
+                alert('Not Permitted!');
+                this.props.history.push('/login');
+            }
+
+            else {
+                alert('Successfully Deleted!');
+                window.location.reload(false);
+            }
+        })
+    }
+
+    onClickUpdate(d) {
+        this.props.history.push({pathname: '/updatejob' , state: d._id});
+    }
+
     changeRating( newRating, name ) {
         console.log(newRating);
         const url = "http://localhost:5000/jobs/updateratings/" + name;
@@ -167,7 +190,9 @@ class JobView extends Component {
                         </tr>
                         <tr className="table-danger">Max Applicants: {d.max_applicants}</tr>
                         <tr className="table-danger">Max Positions: {d.max_positions}</tr>
-                        <a href="#"><div onClick={() => this.onClickRec(d)}>Look at applications</div></a>
+                        <Button size="sm" variant="outline-primary" onClick={() => this.onClickRec(d)}>Look at applications</Button>{'  '}
+                        <Button size="sm" variant="outline-danger" onClick={() => this.onClickDelete(d)}>Delete Job</Button>
+                        <Button size="sm" variant="outline-warning" onClick={() => this.onClickUpdate(d)}>Update Job Details</Button>
                         </tbody>
             </table>
         );

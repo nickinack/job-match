@@ -68,32 +68,42 @@ router.route('/:id').delete( (req , res) => {
 });
 
 //Update given userId
-router.route('/update/:id').post(auth, (req , res) => {
-    if(req.user.id != req.params.id)
-        return res.status(400).json({ msg: 'Not permitted' });
+router.route('/update/:id').post((req , res) => {
+    const user = jwt.verify(req.body.token , 'nickinack');
+    if(user.id !== req.params.id)
+        return res.send('Not permitted');
     console.log("Update Recruiter")
     User.findById(req.params.id)
     .then(users => {
         Recruiter.findOne({usrid : req.params.id})
         .then(recruiters => {
-            if(!recruiters) res.status(400).json({ msg: 'Not permitted' });
+            if(!recruiters) res.send('Not permitted');
             users.name = req.body.name;
             users.email = req.body.email;
             users.password = req.body.password;
             recruiters.usrid = req.params.id;
             recruiters.phone = req.body.phone;
             recruiters.bio = req.body.bio;
-            users.save()
-            .then(() => {
-                recruiters.save()
-                .then(() => res.json("Successfully saved!!"))
-                .catch(err => res.status(400).json('Error: ' + err));
+            if(!recruiters.bio || !recruiters.phone || !users.email || !users.password || !users.name){
+                console.log(!recruiters.rating);
+                return res.send('Enter all the fields properly');
+            }
+            bcrypt.genSalt(10, (err,salt) => {
+                bcrypt.hash(users.password, salt, (err, hash) => {
+                    if(err) throw err;
+                    users.password = hash;
+                    users.save()
+                    .then(() => {
+                        recruiters.save()
+                        .then(() => {return res.send('1')})
+                        .catch(err => res.send('Error: ' + err));
+                    })
+                })
             })
-            .catch(err => res.status(400).json('Error: ' + err));
         })
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.send('Error: ' + err));
     })
-    .catch(err => res.status(400).json('Error: ' + err));
+    .catch(err => res.send('Error: ' + err));
 });
 
 // Given usrid find jobs of the recruiter.
