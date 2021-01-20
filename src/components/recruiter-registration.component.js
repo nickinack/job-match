@@ -97,7 +97,7 @@ class recruiterRegister extends Component {
 
                     <div className="form-group">
                         <label>Password: </label>
-                        <input type="text" className="form-control" value={this.state.password} onChange={this.onChangePassword} />
+                        <input type="password" className="form-control" value={this.state.password} onChange={this.onChangePassword} />
                     </div>
 
                     <div className="form-group">

@@ -155,17 +155,18 @@ router.route('/applications/:id1/:id2').post((req,res) => {
     Application.find({applicant: req.params.id1})
     .then(applied => {
         const len = applied.length;
-        const active_app = 0;
+        var active_app = 0;
         if(len != 0) {
             for(var i = 0 ; i < len ; i++) {
-                console.log(applied[i]);
                 if(applied[i].accept == 2){
                     return res.send('Already accepted into a job');
                 }
-                else if(applied[i].accept == 0 || applied[i].accept == 1)
+                if(applied[i].accept == 0 || applied[i].accept == 1)
                     active_app = active_app + 1;
-                else if(applied[i].job == req.params.id2)
+                if(applied[i].job.equals(req.params.id2)){
                     return res.send('Already applied!');
+                }
+                console.log(applied[i].job , req.params.id2 , applied[i].job == req.params.id2);
             }
         }
         if(active_app >= 10) return res.send('More than 10 active applications');
@@ -188,24 +189,24 @@ router.route('/applications/:id1/:id2').post((req,res) => {
                         if(applications.length >= jobs.max_applicants)
                         {
                             //Change job to inactive
-                            Job.updateOne({"_id": req.params.id2} , {"active": 0})
+                            Job.updateOne({"_id": req.params.id2} , {"active": 2})
                             .then(() => {return res.send('Successfully applied') })
-                            .catch(err => res.status(400).json('Error: ' + err));
+                            .catch(err => res.send('Error: ' + err));
                         }
                         else
                         {
                             return res.send('Successfully applied');
                         }
                     })
-                    .catch(err => res.status(400).json('Error: ' + err));
+                    .catch(err => res.send('Error: ' + err));
                 })
-                .catch(err => res.status(400).json('Error: ' + err));
+                .catch(err => res.send('Error: ' + err));
             })
-            .catch(err => res.status(400).json('Error: ' + err)); 
+            .catch(err => res.send('Error: ' + err));
         })
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.send('Error: ' + err));
     })
-    .catch(err => res.status(400).json('Error: ' + err));
+    .catch(err => res.send('Error: ' + err));
     
 })
 

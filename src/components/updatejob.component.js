@@ -59,7 +59,7 @@ class updateJob extends Component {
             max_positions: this.state.max_positions,
             token: localStorage.getItem('token')
         }
-        console.log(this.state.id);
+        console.log(this.state);
         const url = "http://localhost:5000/jobs/update/" + this.state.id;
         axios.post(url,updateDetails)
         .then(result => {
@@ -79,7 +79,7 @@ class updateJob extends Component {
                 this.props.history.push('/jobview');
             }
             else {
-                alert('Successful');
+                alert(result.data);
                 this.props.history.push('/jobview');
             }
         })

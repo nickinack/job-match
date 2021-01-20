@@ -128,12 +128,16 @@ class Dashboard extends Component {
             return (
             <div className="container">
             <h1>Hey! You are an applicant!</h1>
-            <div> Name: {this.state.user.users.name}</div>
-            <div>Email: {this.state.user.users.email}</div>
-            <div>Rating: {this.state.user.users.rating}</div>
-            <div>Skills: {skillitems}</div>
-            <div>Languages: {langitems}</div>
-            <div>Education: {edu}</div>
+                <table className="table table-bordered">
+                    <tbody>
+                    <tr className="table-danger">Name: {this.state.user.users.name}</tr>
+                    <tr className="table-danger">Email: {this.state.user.users.email}</tr>
+                    <tr className="table-danger">Rating: {this.state.user.users.rating}</tr>
+                    <tr className="table-danger">Skills: {skillitems}</tr>
+                    <tr className="table-danger">Languages: {langitems}</tr>
+                    <tr className="table-danger">Education: {edu}</tr>
+                    </tbody>
+                </table>
             <Button size="sm" variant="outline-primary" onClick={() => this.onUpdate()}>Update</Button>
             </div>
             );
@@ -143,10 +147,14 @@ class Dashboard extends Component {
             return (
             <div className="container">
             <h1>Hey! You are a recruiter</h1>
-            <div>Name: {this.state.user.users.name}</div>
-            <div>Email: {this.state.user.users.email}</div>
-            <div>Phone: {this.state.user.recruiter.phone}</div>
-            <div>Bio: {this.state.user.recruiter.bio}</div>
+            <table className="table table-bordered">
+                <tbody>
+                    <tr className="table-danger">Name: {this.state.user.users.name}</tr>
+                    <tr className="table-danger">Email: {this.state.user.users.email}</tr>
+                    <tr className="table-danger">Phone: {this.state.user.recruiter.phone}</tr>
+                    <tr className="table-danger">Bio: {this.state.user.recruiter.bio}</tr>
+                </tbody>
+            </table>
             <Button size="sm" variant="outline-primary" onClick={() => this.onUpdate()}>Update</Button>
             </div>
             );

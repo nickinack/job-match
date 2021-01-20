@@ -15,9 +15,6 @@ class appViewJob extends Component {
         this.componentWillMount = this.componentWillMount.bind(this);
         this.renderApps = this.renderApps.bind(this);
         this.renderAppDetails = this.renderAppDetails.bind(this);
-        this.onAccept = this.onAccept.bind(this);
-        this.onReject = this.onReject.bind(this);
-        this.onShortlist = this.onShortlist.bind(this);
         this.onChangeSortBy = this.onChangeSortBy.bind(this);
         this.onChangeSortIn = this.onChangeSortIn.bind(this);
         this.clearSort = this.clearSort.bind(this);
@@ -29,7 +26,8 @@ class appViewJob extends Component {
             sortby: '',
             sortin: 'asc',
             sorted_app: [],
-            clear_sorted: 1
+            clear_sorted: 1,
+            jobs: []
         }
     }
 
@@ -49,17 +47,12 @@ class appViewJob extends Component {
             alert('Not Permitted');
             this.props.history.push('/login');
         }
-
-        const jobid = this.props.location.state;
-        if(!jobid)
-        {
-            this.props.history.push('/jobview');
-        }
-        const url = "http://localhost:5000/jobs/" + jobid + "/applications";     
+        console.log(User.token);
+        const url = "http://localhost:5000/recruiters/accepted/viewall";
         axios.post(url , tokenVerify)
         .then(results => {
-            if(results.data == 1) {
-                alert('Not Permitted');
+            if(results.data == 1 || results.data == 2) {
+                alert('Not Data');
                 this.props.history.push('/login');
             }
 
@@ -67,96 +60,11 @@ class appViewJob extends Component {
                 this.setState({applicants: results.data.applicants});
                 this.setState({applications: results.data.applications});
                 this.setState({users: results.data.users});
+                this.setState({jobs: results.data.jobs});
                 this.setState({loading: false});
             }
         })
 
-    }
-
-    onAccept(d) {
-        console.log('Accept');
-        const url = 'http://localhost:5000/jobs/updateapplication/' + d._id;
-        const details = {
-            accept: 2,
-            token: localStorage.getItem('token')
-        }
-        axios.post(url , details)
-        .then(result => {
-            if(result.data == 1) alert('Try again, something went wrong!');
-            else{
-                alert(result.data);
-                this.props.history.push({pathname: '/jobview' , state: d._id});
-            }
-        })
-        .catch((error) => console.log(error));
-    }
-
-    onShortlist(d) {
-        console.log('Shortlist');
-        const url = 'http://localhost:5000/jobs/updateapplication/' + d._id;
-        const details = {
-            accept: 1,
-            token: localStorage.getItem('token')
-        }
-        axios.post(url , details)
-        .then(result => {
-            if(result.data == 1) alert('Try again, something went wrong!');
-            if(result.data == 2) alert('Surpassed count for acceptance');
-            else{
-                alert(result.data);
-                this.props.history.push({pathname: '/jobview' , state: d._id});
-            }
-        })
-        .catch((error) => console.log(error));
-    }
-
-    onReject(d) {
-        console.log('Reject');
-        const url = 'http://localhost:5000/jobs/updateapplication/' + d._id;
-        const details = {
-            accept: 3,
-            token: localStorage.getItem('token')
-        }
-        axios.post(url , details)
-        .then(result => {
-            if(result.data == 1) alert('Try again, something went wrong!');
-            else{
-                alert(result.data);
-                this.props.history.push({pathname: '/jobview' , state: d._id});
-            }
-        })
-        .catch((error) => console.log(error));
-    }
-
-    onRenderButtons(d) {
-
-        if(d.accept == 0)
-        {
-            return (
-                <Container>
-                <Button size="sm" variant="outline-primary" onClick={() => this.onAccept(d)}>Accept</Button>{' '}
-                <Button size="sm" variant="outline-warning" onClick={() => this.onShortlist(d)}>Shortlist</Button>{' '}
-                <Button size="sm" variant="outline-danger" onClick={() => this.onReject(d)}>Reject</Button>
-                </Container>
-            )
-        }
-
-        if(d.accept == 1)
-        {
-            return (
-                <Container>
-                <Button size="sm" variant="outline-primary" onClick={() => this.onAccept(d)}>Accept</Button>{' '}
-                <Button size="sm" variant="outline-danger" onClick={() => this.onReject(d)}>Reject</Button>
-                </Container>
-            )
-        }
-
-        if(d.accept == 2)
-        {
-            return (
-                <Container>Accepted!</Container>
-            )
-        }
     }
 
     onChangeSortBy(e){
@@ -296,9 +204,11 @@ class appViewJob extends Component {
         {
             if(sortin === "asc")
             {
-                this.state.sorted_app.sort((a,b) =>  {
-                    if(a.applied > b.applied) {return 1} 
-                    else if(a.applied < b.applied) {return -1}
+                this.state.sorted_app.sort((a1,b1) =>  {
+                    const a = this.getJobDetails(a1.job).posting_date;
+                    const b = this.getJobDetails(b1.job).posting_date;
+                    if(this.formatDate(a.year , a.month , a.date) > this.formatDate(b.year , b.month , b.date)) {return 1} 
+                    else if(this.formatDate(a.year , a.month , a.date) < this.formatDate(b.year , b.month , b.date)) {return -1}
                     else return 0
                 }   
                 );
@@ -306,9 +216,11 @@ class appViewJob extends Component {
 
             else if(sortin === "des")
             {
-                this.state.sorted_app.sort((a,b) =>  {
-                    if(a.applied > b.applied) {return -1} 
-                    else if(a.applied < b.applied) {return +1}
+                this.state.sorted_app.sort((a1,b1) =>  {
+                    const a = this.getJobDetails(a1.job).posting_date;
+                    const b = this.getJobDetails(b1.job).posting_date;
+                    if(this.formatDate(a.year , a.month , a.date) > this.formatDate(b.year , b.month , b.date)) {return -1} 
+                    else if(this.formatDate(a.year , a.month , a.date) < this.formatDate(b.year , b.month , b.date)) {return +1}
                     else return 0
                 }   
                 );
@@ -320,8 +232,8 @@ class appViewJob extends Component {
             if(sortin === "asc")
             {
                 this.state.sorted_app.sort((a,b) =>  {
-                    if(this.getApplicantDetails(a.applicant).name> this.getApplicantDetails(b.applicant).name) {return 1} 
-                    else if(this.getApplicantDetails(a.applicant).name < this.getApplicantDetails(b.applicant).name) {return -1}
+                    if(this.getApplicantDetails(a.applicant).name.toLowerCase() > this.getApplicantDetails(b.applicant).name.toLowerCase()) {return 1} 
+                    else if(this.getApplicantDetails(a.applicant).name.toLowerCase() < this.getApplicantDetails(b.applicant).name.toLowerCase()) {return -1}
                     else return 0
                 }   
                 );
@@ -330,16 +242,62 @@ class appViewJob extends Component {
             else if(sortin === "des")
             {
                 this.state.sorted_app.sort((a,b) =>  {
-                    if(this.getApplicantDetails(a.applicant).name > this.getApplicantDetails(b.applicant).name) {return -1} 
-                    else if(this.getApplicantDetails(a.applicant).name < this.getApplicantDetails(b.applicant).name) {return 1}
+                    if(this.getApplicantDetails(a.applicant).name.toLowerCase() > this.getApplicantDetails(b.applicant).name.toLowerCase()) {return -1} 
+                    else if(this.getApplicantDetails(a.applicant).name.toLowerCase() < this.getApplicantDetails(b.applicant).name.toLowerCase()) {return 1}
                     else return 0
                 }   
                 );
             }
         }
+
+        if(sortby === 'Title')
+        {
+            if(sortin === "asc")
+            {
+                this.state.sorted_app.sort((a,b) =>  {
+                    if(this.getJobDetails(a.job).title.toLowerCase() > this.getJobDetails(b.job).title.toLowerCase()) {return 1} 
+                    else if(this.getJobDetails(a.job).title.toLowerCase() < this.getJobDetails(b.job).title.toLowerCase()) {return -1}
+                    else return 0
+                }   
+                );
+            }
+
+            else if(sortin === "des")
+            {
+                this.state.sorted_app.sort((a,b) =>  {
+                    if(this.getJobDetails(a.job).title.toLowerCase() > this.ggetJobDetails(b.job).title.toLowerCase()) {return -1} 
+                    else if(this.getJobDetails(a.job).title.toLowerCase() < this.getJobDetails(b.job).title.toLowerCase()) {return 1}
+                    else return 0
+                }   
+                );
+            }
+
+        }
         this.setState({loading: false});
         this.setState({clear_sorted: 0});
     };
+
+    formatDate(day , month , year)
+    {
+        return new Date(year,month, day,0,0,0);
+    }
+
+    getJobDetails(jobid){
+        for(var i = 0 ; i < this.state.jobs.length ; i++)
+        {
+            console.log(jobid , this.state.jobs[i]._id);
+            if(jobid == this.state.jobs[i]._id)
+            {
+                const jobDetails = {
+                    posting_date: this.state.jobs[i].posting_date,
+                    title: this.state.jobs[i].title,
+                    type: this.state.jobs[i].type
+                }
+                return jobDetails;
+            }
+        }
+       
+    }
 
     renderAppDetails(d) {
         if(d.accept == 3)
@@ -356,19 +314,19 @@ class appViewJob extends Component {
         {d.end_year}
         </li>
         );
-        console.log(skill_render);
+        const job_details = this.getJobDetails(d.job);
+        console.log(job_details);
+        const monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
         return (
         <table className="table table-bordered">
                     <tbody>
                     <tr className="table-danger">Name: {appl.name}</tr>
-                    <tr className="table-danger">Name: {appl.email}</tr>
+                    <tr className="table-danger">Email: {appl.email}</tr>
                     <tr className="table-danger">Date applied: {d.applied}</tr>
-                    <tr className="table-danger">SOP: {d.sop}</tr>
-                    <tr className="table-danger">Skills: {skill_render}</tr>
-                    <tr className="table-danger">Languages: {lang_render}</tr>
-                    <tr className="table-danger">Education: {edu_render}</tr>
-                    <tr className="table-danger">Status: {this.getStatus(d.accept)} </tr>
-                    {this.onRenderButtons(d)}
+                    <tr className="table-danger">Type: {job_details.type} </tr>
+                    <tr className="table-danger">Join Date: {job_details.posting_date.date} {monthNames[job_details.posting_date.month]}, {job_details.posting_date.year}</tr>
+                    <tr className="table-danger">Title: {job_details.title} </tr>
+                    <StarRatings rating={this.getApplicantDetails(d.applicant).rating} starRatedColor="blue" changeRating={this.changeRating} numberOfStars={5} name={this.getApplicantDetails(d.applicant).usrid}/>
                     </tbody>
         </table>
         );
@@ -387,7 +345,6 @@ class appViewJob extends Component {
 
         else if(localStorage.getItem("type") === 'Recruiter' && this.state.clear_sorted == 1)
         {
-            console.log('Clear Sorted invoked');
             const apps = this.state.applications.map((d) => 
             <div> {this.renderAppDetails(d)} </div>
             );
@@ -420,7 +377,9 @@ class appViewJob extends Component {
                             <Dropdown.Divider />
                             <Dropdown.Item eventKey="Name">Name</Dropdown.Item>
                             <Dropdown.Divider />
-                            <Dropdown.Item eventKey="Date">Application date</Dropdown.Item>
+                            <Dropdown.Item eventKey="Date">Posting date</Dropdown.Item>
+                            <Dropdown.Divider />
+                            <Dropdown.Item eventKey="Title">Job Title</Dropdown.Item>
                         </DropdownButton>
                     </div>
                     <div>
@@ -430,6 +389,9 @@ class appViewJob extends Component {
                             <Dropdown.Divider />
                             <Dropdown.Item eventKey="des">Descending</Dropdown.Item>
                         </DropdownButton>
+                    </div>
+                    <div>
+                        <label>Sort by title</label>
                     </div>
                     <div className="p-2">
                         <Button size="sm" variant="outline-primary" onClick={() => this.onSort(this.state.sortby , this.state.sortin)}>Sort</Button>

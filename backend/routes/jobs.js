@@ -86,14 +86,15 @@ router.route('/update/:id').post((req,res) => {
     console.log('Job Updation');
     Job.findOne({"_id": req.params.id})
     .then(jobs => {
+        console.log(req.body.deadline);
         if(user.id != jobs.recruiter) return res.send('1');
         Application.find({job: req.params.id})
         .then(applications => {
+            var max_positions = 0;
             if(applications.length != 0)
             {
-                var max_positions = 0;
 
-                if(applicants.length > req.body.max_applicants)
+                if(applications.length > req.body.max_applicants)
                 {
                     return res.send('2');
                 }
@@ -109,16 +110,31 @@ router.route('/update/:id').post((req,res) => {
                 {
                     return res.send('3');
                 }
-
+                
             }
-            Job.updateOne({"_id": req.params.id} , {$set: {"max_applicants": req.body.max_applicants, "max_positions": req.body.max_positions, "deadline": req.params.deadline}})
-            .then(jobs => res.send('Successfully updated!'))
-            .catch(err => res.status(400).json('Error: ' + err));
+            if(req.body.max_positions > max_positions && req.body.max_applicants > applications.length)
+            {
+
+                {
+                    Job.updateOne({_id: req.params.id} , {$set: {max_applicants: req.body.max_applicants, max_positions: req.body.max_positions, deadline: req.body.deadline, active: 1}})
+                    .then(jobs => {
+                        return res.send('Successfully updated!');
+                    })
+                    .catch(err => res.send('Error: ' + err));
+                }
+            }
+            else {
+                Job.updateOne({_id: req.params.id} , {$set: {max_applicants: req.body.max_applicants, max_positions: req.body.max_positions, deadline: req.body.deadline}})
+                .then(jobs => {
+                    return res.send('Successfully updated!');
+                })
+                .catch(err => res.send('Error: ' + err));
+            }
         })
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.send('Error: ' + err));
         
     })
-    .catch(err => res.status(400).json('Error: ' + err));
+    .catch(err => res.send('Error: ' + err));
 });
 
 // Look into a job

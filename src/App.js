@@ -14,6 +14,7 @@ import appViewJob from "./components/appviewjob.component";
 import updateJob from "./components/updatejob.component";
 import updateApplicant from "./components/updateapplicant.component";
 import updateRecruiter from "./components/updaterecruiter.component";
+import viewAccepted from "./components/viewaccepted.component";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
       <Route path="/updatejob" component={updateJob} />
       <Route path="/updateapplicant" component={updateApplicant} />
       <Route path="/updaterecruiter" component={updateRecruiter} />
+      <Route path="/viewaccepted" component={viewAccepted} />
     </div>
     </Router>
   );
