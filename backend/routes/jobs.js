@@ -64,6 +64,10 @@ router.route('/add').post((req,res) => {
     if(!title || !max_applicants || !recruiter || !deadline || !skills || !type || !salary)
         return res.send('Enter the details properly');
 
+    if(max_applicants < max_positions)
+    {
+        return res.send('Maximum Applicants should be greater than maximum positions');
+    }
 
     Recruiter.findOne({usrid: recruiter})
     .then(recruiters => {
@@ -84,6 +88,10 @@ router.route('/add').post((req,res) => {
 router.route('/update/:id').post((req,res) => {
     const user = jwt.verify(req.body.token , 'nickinack');
     console.log('Job Updation');
+    if(req.body.max_applicants < req.body.max_positions)
+    {
+        return res.send('0');
+    }
     Job.findOne({"_id": req.params.id})
     .then(jobs => {
         console.log(req.body.deadline);

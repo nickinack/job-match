@@ -274,16 +274,16 @@ class JobView extends Component {
         {
             if(!this.alreadyApplied(d._id)) {
                 return (
-                    <a href="#"><div onClick={() => this.onClickApp(d)}>Apply</div></a>
+                    <Button size="sm" variant="outline-primary" onClick={() => this.onClickApp(d)}>Apply!</Button>
                 )
             }
             else {
-                return (<div>Already applied!</div>);
+                return (<Button size="sm" variant="outline-warning">Applied!</Button>);
             }
         }
         if(d.active == 2)
         {
-            return(<div>Full!</div>)
+            return(<Button size="sm" variant="outline-danger">Full!</Button>)
         }
     }
 
@@ -364,7 +364,7 @@ class JobView extends Component {
     }
 
     renderJobs(){
-
+        const cur_date = new Date();
         if(this.state.loading)
         {
             return (
@@ -376,7 +376,7 @@ class JobView extends Component {
         else if(localStorage.getItem("type") === 'Applicant' && this.state.filtered_job.length == 0 && this.state.no_results == 0)
         {
             const job = this.state.jobs.map((d) => 
-            <div> {(d.active==1 || d.active==2)? this.renderJobApp(d) : '' } </div>
+            <div> {((d.active==1 || d.active==2) && Date.parse(d.deadline) < cur_date)? this.renderJobApp(d) : '' } </div>
             );
             return (
                 <Container>{job}</Container>
@@ -387,7 +387,7 @@ class JobView extends Component {
         {
             console.log(this.state.filtered_job);
             const job = this.state.filtered_job.map((d) => 
-            <div> {(d.active==1 || d.active==2) ? this.renderJobApp(d) : '' } </div>
+            <div> {((d.active==1 || d.active==2) && Date.parse(d.deadline) < cur_date) ? this.renderJobApp(d) : '' } </div>
             );
             return (
                 <Container>{job}</Container>

@@ -151,6 +151,15 @@ router.route('/applications/:id1/:id2').post((req,res) => {
         console.log(jwt.verify(req.body.token , 'nickinack').id);
         return res.send('Not Permitted!');
     }
+
+    var str = req.body.sop;
+    str = str.replace(/(^\s*)|(\s*$)/gi,"");
+    str = str.replace(/[ ]{2,}/gi," ");
+    str = str.replace(/\n /,"\n");
+    if(str.split(' ').length >= 250)
+    {
+        return res.send('SOP is greater than 250 words');
+    };
     console.log('Apply for a job');
     Application.find({applicant: req.params.id1})
     .then(applied => {

@@ -63,7 +63,11 @@ class updateJob extends Component {
         const url = "http://localhost:5000/jobs/update/" + this.state.id;
         axios.post(url,updateDetails)
         .then(result => {
-            if(result.data == 1)
+            if(result.data == 0)
+            {
+                alert('Max applicants should be greater than max positions');
+            }
+            else if(result.data == 1)
             {
                 alert('Not permitted');
                 this.props.history.push('/login');
