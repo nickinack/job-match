@@ -18,7 +18,6 @@ const applicationSchema = new Schema({
 
     sop: {
         type: String,
-        maxlength: 250,
         minlength: 10,
         required: true
     },

@@ -5,6 +5,11 @@ let User = require('../models/user.model');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const auth = require('../middleware/auth');
+var multer = require('multer')
+var cors = require('cors');
+var express = require('express');
+var app = express();
+app.use(cors())
 require('./config')
 
 
@@ -20,6 +25,11 @@ router.route('/register').post((req , res) => {
         const education = req.body.education;
         const languages = req.body.languages;
         const skills = req.body.skills;
+        var resume = 0;
+        if(!req.body.resume)
+            resume = 0;
+        if(req.body.resume)
+            resume = 1;
 
         if(!rating){
             rating = Number(0);
@@ -27,7 +37,7 @@ router.route('/register').post((req , res) => {
 
         // Check if all fields have been entered correctly
         if(!name || !email || !password)
-            return res.status(400).json({ msg: 'Please enter all the fields properly' });
+            return res.send('0');
 
 
         // Check if start date is lesser than end date
@@ -35,10 +45,10 @@ router.route('/register').post((req , res) => {
             for(var i = 0 ; i < education.length ; i++)
             {
                 if(isNaN(Number(education[i].start_year)) ||  isNaN(Number(education[i].end_year))){
-                    return res.send('Enter education fields with a number');
+                    return res.send('1');
                 }
                 if(Number(education[i].start_year >= Number(education[i].end_year)))
-                    return res.send('Please enter date fields properly');
+                    return res.send('2');
 
             }
         }
@@ -55,10 +65,14 @@ router.route('/register').post((req , res) => {
                 .then(user => {
                     jwt.sign({id: user.id} , 'nickinack' , {expiresIn: 3600}, (err , token) => {
                     const usrid = user._id;
-                    const newApplicant = new Applicant({usrid, rating , education , skills , languages});
+                    const newApplicant = new Applicant({usrid, rating , education , skills , languages , resume});
                     console.log(newApplicant);
                     newApplicant.save()
-                    .then(applicant => {console.log(applicant); res.send('1');})
+                    .then(applicant => {
+                        console.log(); 
+                        res.send(applicant);
+
+                    })
                     .catch(err => res.send('Error: ' + err));
                     })        
                 })
@@ -137,6 +151,31 @@ router.route('/decode').post((req , res) => {
     catch(e) {
         res.send(e);
     }
+});
+
+
+router.route('/uploadresume/:id').post((req , res) => {
+
+
+    var storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+        cb(null, '../public')
+    },
+    filename: function (req, file, cb) {
+        cb(null, req.params.id+'.pdf')
+    }
+    })
+    var upload = multer({ storage: storage }).single('file')
+
+    upload(req, res, function (err) {
+        if (err instanceof multer.MulterError) {
+            return res.send('Upload Error')
+        } else if (err) {
+            return res.send('Upload error')
+        }
+        return res.send(req.file)
+    })
+
 });
 
 module.exports = router;

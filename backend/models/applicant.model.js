@@ -41,7 +41,12 @@ const applicantSchema = new Schema({
         }
     ],
 
-    recRated: [String]
+    recRated: [String],
+    
+    resume: {
+        type:Number,
+        default: 0
+    }
 
 }, {timestamps: true});
 

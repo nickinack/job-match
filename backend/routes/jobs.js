@@ -38,7 +38,13 @@ router.route('/viewsome').post((req,res) => {
             job_rec.push(jobs[i].recruiter);
         }
         Recruiter.find({usrid: {$in: job_rec}})
-        .then(recruiters => res.send({recruiters , jobs}))
+        .then(recruiters => {
+            User.find({"_id": {$in: job_rec}})
+            .then(users => {
+                res.send({users, recruiters , jobs})
+            })
+            .catch(err => res.send('Error: ' + err));
+        })
         .catch(err => res.send('Error: ' + err));
     })
     .catch(err => res.send('Error: ' + err));
@@ -64,8 +70,9 @@ router.route('/add').post((req,res) => {
     if(!title || !max_applicants || !recruiter || !deadline || !skills || !type || !salary)
         return res.send('Enter the details properly');
 
-    if(max_applicants < max_positions)
+    if(Number(max_applicants) < Number(max_positions))
     {
+        console.log(max_applicants , max_positions);
         return res.send('Maximum Applicants should be greater than maximum positions');
     }
 
@@ -88,8 +95,9 @@ router.route('/add').post((req,res) => {
 router.route('/update/:id').post((req,res) => {
     const user = jwt.verify(req.body.token , 'nickinack');
     console.log('Job Updation');
-    if(req.body.max_applicants < req.body.max_positions)
+    if(Number(req.body.max_applicants) < Number(req.body.max_positions))
     {
+        console.log(req.body.max_applicants , req.body.max_positions)
         return res.send('0');
     }
     Job.findOne({"_id": req.params.id})
@@ -226,8 +234,19 @@ router.route('/updateapplication/:id').post((req,res) => {
                     .then(results => {
                         Application.updateOne({"job": jobs._id , "accept": {"$in": ['0' , '1']}}, {$set: {"accept" : 3}})
                         .then(results => {
-                            Job.updateOne({"_id": jobs.id} , {"$set": {"active": 2}})
-                            .then(jobUpdate => res.send('Successful'))
+                            Job.updateOne({"_id": jobs.id} , {"$set": {"active": 0}})
+                            .then(jobUpdate => {
+                                if(Number(req.body.accept) == 2) {
+                                    Application.updateMany({"applicant": applications.applicant , "accept": {"$in": ['0' , '1']}} , {$set: {"accept": 3}})
+                                    .then(update => {
+                                        return res.send('Successful');
+                                    })
+                                    .catch(err => res.send('Error: ' + err));
+                                }
+                                else{
+                                    return res.send('Successful');
+                                }
+                            })
                             .catch(err => res.send('Error: ' + err));
                         })
                         .catch(err => res.send('Error: ' + err));
@@ -236,10 +255,20 @@ router.route('/updateapplication/:id').post((req,res) => {
                 }
                 else {
                 Application.updateOne({"_id": req.params.id}, {$set: {"accept" : req.body.accept}})
-                .then(result => res.send('Successful!'))
+                .then(result => {
+                    if(Number(req.body.accept) == 2)
+                    {
+                        Application.updateMany({"applicant": applications.applicant , "accept": {"$in": ['0' , '1']}} , {$set: {"accept": 3}})
+                        .then(update => {
+                            return res.send('Successful');
+                        })
+                        .catch(err => res.send('Error: ' + err));
+                    }
+                    else
+                    return res.send('Successful');
+                })
                 .catch(err => res.send('Error: ' + err));
                 }
-
             })
             .catch(err => res.send('Error: ' + err));
         })
@@ -277,5 +306,16 @@ router.route('/updateratings/:id').post((req,res) => {
     })
     .catch(err => res.send('Error: ' + err));
 });
+
+// Get number of applications
+
+router.route('/applications/countall').post((req,res) => {
+    
+    Application.find({"job": {"$in": req.body.id} , "accept": 2})
+    .then(applications => {
+       res.send(applications);
+    })
+    .catch(err => res.send('Error: ' + err));
+})
 
 module.exports = router;
