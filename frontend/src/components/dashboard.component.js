@@ -1,9 +1,13 @@
 import axios from 'axios';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import Container from 'react-bootstrap/Container'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { withRouter } from "react-router-dom";
+import StarRatings from 'react-star-ratings';
 import Button from 'react-bootstrap/Button'
+import DropdownButton from 'react-bootstrap/DropdownButton';
+import Dropdown from 'react-bootstrap/Dropdown';
 
 
 
@@ -144,17 +148,23 @@ class Dashboard extends Component {
             return (
             <div className="container">
             <h1>Hey! You are an applicant!</h1>
-                <table className="table table-bordered">
-                    <tbody>
-                    <tr className="table-danger">Name: {this.state.user.users.name}</tr>
-                    <tr className="table-danger">Email: {this.state.user.users.email}</tr>
-                    <tr className="table-danger">Rating: {this.state.user.users.rating}</tr>
-                    <tr className="table-danger">Skills: {skillitems}</tr>
-                    <tr className="table-danger">Languages: {langitems}</tr>
-                    <tr className="table-danger">Education: <table className="table table-bordered">{edu}</table> </tr>
-                    {this.renderProfile(this.state.user.users)}
-                    </tbody>
-                </table>
+                <div className="d-flex flex-row">
+                    <div className="p-2">
+                        <table className="table table-bordered">
+                            <tbody>
+                            <tr className="table-danger">Name: {this.state.user.users.name}</tr>
+                            <tr className="table-danger">Email: {this.state.user.users.email}</tr>
+                            <tr className="table-danger">Rating: {this.state.user.users.rating}</tr>
+                            <tr className="table-danger">Skills: {skillitems}</tr>
+                            <tr className="table-danger">Languages: {langitems}</tr>
+                            <tr className="table-danger">Education: <table className="table table-bordered">{edu}</table> </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="p-2">
+                        {this.renderProfile(this.state.user.users)}
+                    </div>
+                </div>
             <Button size="sm" variant="outline-primary" onClick={() => this.onUpdate()}>Update</Button>
             </div>
             );
@@ -164,15 +174,22 @@ class Dashboard extends Component {
             return (
             <div className="container">
             <h1>Hey! You are a recruiter</h1>
-            <table className="table table-bordered">
-                <tbody>
-                    <tr className="table-danger">Name: {this.state.user.users.name}</tr>
-                    <tr className="table-danger">Email: {this.state.user.users.email}</tr>
-                    <tr className="table-danger">Phone: {this.state.user.recruiter.phone}</tr>
-                    <tr className="table-danger">Bio: {this.state.user.recruiter.bio}</tr>
-                    {this.renderProfile(this.state.user.users)}
-                </tbody>
-            </table>
+            <div className="flex-row">
+                <div>
+                    <table className="table table-bordered">
+                        <tbody>
+                            <tr className="table-danger">Name: {this.state.user.users.name}</tr>
+                            <tr className="table-danger">Email: {this.state.user.users.email}</tr>
+                            <tr className="table-danger">Phone: {this.state.user.recruiter.phone}</tr>
+                            <tr className="table-danger">Bio: {this.state.user.recruiter.bio}</tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                        {this.renderProfile(this.state.user.users)}
+                </div>
+            </div>
+
             <Button size="sm" variant="outline-primary" onClick={() => this.onUpdate()}>Update</Button>
             </div>
             );

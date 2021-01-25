@@ -148,6 +148,16 @@ class Login extends Component {
         const postingDate = new Date(this.state.posting_date);
         const monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
         const skill_len = this.state.skills.length;
+        const cur_date = new Date();
+        const cur_stamp = cur_date.getTime();
+        const deadline_stamp = Date.parse(deadlineDate);
+        const posting_stamp = Date.parse(postingDate);
+        console.log(deadline_stamp , cur_stamp)
+        if(deadline_stamp <= cur_stamp || deadline_stamp >= posting_stamp || posting_stamp <= cur_stamp)
+        {
+            alert("Enter the dates properly");
+            window.location.reload(false);
+        }
         var skill = [];
         if(skill_len != 0)
         {

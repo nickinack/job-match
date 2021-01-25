@@ -80,7 +80,11 @@ class recruiterRegister extends Component {
 
     onChangeImage(e) {
         let file = e.target.files[0];
-
+        if(file.size > 100000)
+        {
+            alert('Image size > 1 MB')
+            window.location.reload(false);
+        }
         if(file) {
             const reader = new FileReader();
             reader.onload = this.handlerReaderLoaded.bind(this);

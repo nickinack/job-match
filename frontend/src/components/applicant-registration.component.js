@@ -175,6 +175,12 @@ class applicantRegister extends Component {
 
     onChangeImage(e) {
         let file = e.target.files[0];
+        console.log(file.size);
+        if(file.size > 100000)
+        {
+            alert('Image size > 1 MB')
+            window.location.reload(false);
+        }
 
         if(file) {
             const reader = new FileReader();
