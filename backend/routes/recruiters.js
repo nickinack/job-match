@@ -82,6 +82,7 @@ router.route('/update/:id').post((req , res) => {
             users.name = req.body.name;
             users.email = req.body.email;
             users.password = req.body.password;
+            users.profile = req.body.imgencode;
             recruiters.usrid = req.params.id;
             recruiters.phone = req.body.phone;
             recruiters.bio = req.body.bio;

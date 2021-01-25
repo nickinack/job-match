@@ -13,6 +13,7 @@ class recruiterRegister extends Component {
         this.onChangePassword = this.onChangePassword.bind(this);
         this.onChangePhone = this.onChangePhone.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
+        this.onChangeImage = this.onChangeImage.bind(this);
 
         this.state = {
 
@@ -20,7 +21,8 @@ class recruiterRegister extends Component {
             email: '',
             bio: '',
             phone: '',
-            password: ''
+            password: '',
+            imgencode: ''
         }
     }
 
@@ -63,7 +65,8 @@ class recruiterRegister extends Component {
             email: this.state.email,
             password: this.state.password,
             phone: this.state.phone,
-            bio: this.state.bio
+            bio: this.state.bio,
+            imgencode: this.state.imgencode
         }
         axios.post("http://localhost:5000/users/register", recruiter).then(result => { 
             console.log(result.data); 
@@ -73,6 +76,24 @@ class recruiterRegister extends Component {
         .catch(error => console.log(error));
         console.log(recruiter);
 
+    }
+
+    onChangeImage(e) {
+        let file = e.target.files[0];
+
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = this.handlerReaderLoaded.bind(this);
+            reader.readAsBinaryString(file);
+        }
+    }
+
+    handlerReaderLoaded(e) {
+        let binaryString = e.target.result;
+        this.setState({
+            imgencode: btoa(binaryString)
+        });
+        console.log(btoa(binaryString));
     }
 
     render(){
@@ -106,8 +127,14 @@ class recruiterRegister extends Component {
                     </div>
 
                     <div className="form-group">
+                        <labe>Upload Profile Pic: </labe>
+                        <input type="file" name="image" id="file" accept=".jpeg , .png , .jpg" onChange={this.onChangeImage} />
+                    </div>
+
+                    <div className="form-group">
                         <input type="submit" value="Create Recruiter" className="btn btn-primary" />
                     </div>
+
                 </form>
             </div>
         )

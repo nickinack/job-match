@@ -35,7 +35,9 @@ class updateApplicant extends Component {
             skills: [{skill: ''}],
             languages: [{language: ''}],
             education: [{college: "" , start_year: 0 , end_year: 0}],
-            id: ''
+            id: '',
+            resume: '',
+            imgencode: ''
         }
     }
 
@@ -62,6 +64,8 @@ class updateApplicant extends Component {
                 this.setState({name: userdetails.data.users.name});
                 this.setState({email: userdetails.data.users.email});
                 this.setState({skills: userdetails.data.applicant.skills});
+                this.setState({resume: userdetails.data.applicant.resume});
+                this.setState({imgencode: userdetails.data.users.profile})
                 var skill_set = []
                 const len1 = userdetails.data.applicant.skills.length;
                 if(len1 != 0 ) {
@@ -254,7 +258,9 @@ class updateApplicant extends Component {
             languages: lang,
             rating: this.state.rating,
             education: this.state.education,
-            token: localStorage.getItem('token')
+            token: localStorage.getItem('token'),
+            resume: this.state.resume,
+            imgencode: this.state.imgencode
         }
 
         const url = "http://localhost:5000/applicants/update/" + this.state.id;

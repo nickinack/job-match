@@ -25,6 +25,8 @@ router.route('/register').post((req , res) => {
         const education = req.body.education;
         const languages = req.body.languages;
         const skills = req.body.skills;
+        const profile = req.body.imgencode;
+        console.log(profile);
         var resume = 0;
         if(!req.body.resume)
             resume = 0;
@@ -53,7 +55,7 @@ router.route('/register').post((req , res) => {
             }
         }
         
-        const newUser = new User({name,email,password,type});
+        const newUser = new User({name,email,password,type,profile});
         console.log('Created');
         
         //Generate salt
@@ -91,11 +93,13 @@ router.route('/register').post((req , res) => {
         const phone = req.body.phone;
         const bio = req.body.bio;
         const type = "Recruiter";
+        const profile = req.body.imgencode;
+        console.log(profile);
 
         if(!name || !email || !password || !bio || !phone)
             return res.send({ msg: 'Please enter all details properly' })
 
-        const newUser = new User({name,email,password,type});
+        const newUser = new User({name,email,password,type,profile});
 
         bcrypt.genSalt(10, (err , salt) => {
             bcrypt.hash(newUser.password, salt, (err,hash) => {

@@ -26,6 +26,7 @@ class applicantRegister extends Component {
         this.educationcreateUI = this.educationcreateUI.bind(this);
         this.educationhandleChange = this.educationhandleChange.bind(this);
         this.educationremoveClick = this.educationremoveClick.bind(this);
+        this.onChangeImage = this.onChangeImage.bind(this);
 
         this.state = {
             name: '',
@@ -35,7 +36,8 @@ class applicantRegister extends Component {
             skills: [{skill: ''}],
             languages: [{language: 'C'} , {language: 'C++'}],
             education: [{college: "" , start_year: 0 , end_year: 0}],
-            selectedFile: null
+            selectedFile: null,
+            imgencode: ''
         }
     }
     //Skills UI 
@@ -171,6 +173,24 @@ class applicantRegister extends Component {
 
     }
 
+    onChangeImage(e) {
+        let file = e.target.files[0];
+
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = this.handlerReaderLoaded.bind(this);
+            reader.readAsBinaryString(file);
+        }
+    }
+
+    handlerReaderLoaded(e) {
+        let binaryString = e.target.result;
+        this.setState({
+            imgencode: btoa(binaryString)
+        });
+        console.log(btoa(binaryString));
+    }
+
     onSubmit(e) {
         e.preventDefault();
         const len = this.state.education.length;
@@ -215,7 +235,8 @@ class applicantRegister extends Component {
                 languages: lang,
                 rating: this.state.rating,
                 education: this.state.education,
-                resume: 1
+                resume: 1,
+                imgencode: this.state.imgencode
             }
         }
         else{
@@ -227,7 +248,8 @@ class applicantRegister extends Component {
                 skills: skill,
                 languages: lang,
                 rating: this.state.rating,
-                education: this.state.education
+                education: this.state.education,
+                imgencode: this.state.imgencode
             }
         }
         console.log(applicant);
@@ -314,9 +336,18 @@ class applicantRegister extends Component {
         <br />
         <br />
         <br />
-        <input type="file" className="hidden" multiple={false} accept=".pdf" onChange={evt => this.onUpload(evt)} />
+        <div className="form-group">
+            <label>Upload Resume: </label>
+            <input type="file" className="hidden" multiple={false} accept=".pdf" onChange={evt => this.onUpload(evt)} />
+        </div>
         <br />
         <br />
+
+        <div className="form-group">
+            <labe>Upload Profile Pic: </labe>
+            <input type="file" name="image" id="file" accept=".jpeg , .png , .jpg" onChange={this.onChangeImage} />
+        </div>
+
         <div className="form-group">
           <input type="submit" value="Create Applicant" className="btn btn-primary" />
         </div>

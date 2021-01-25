@@ -106,6 +106,22 @@ class Dashboard extends Component {
             this.props.history.push({pathname: "/updaterecruiter" });
       }
 
+      renderProfile(d) {
+          if(!d.hasOwnProperty('profile'))
+          {
+              return ''
+          }
+          else{
+              if(!d.profile)
+              {
+                  return ''
+              }
+              else{
+                  return <img src={`data:image/jpeg;base64,${d.profile}`} />
+              }
+          }
+      }
+
       renderUser() { 
         if(this.state.loading)
         {
@@ -136,6 +152,7 @@ class Dashboard extends Component {
                     <tr className="table-danger">Skills: {skillitems}</tr>
                     <tr className="table-danger">Languages: {langitems}</tr>
                     <tr className="table-danger">Education: <table className="table table-bordered">{edu}</table> </tr>
+                    {this.renderProfile(this.state.user.users)}
                     </tbody>
                 </table>
             <Button size="sm" variant="outline-primary" onClick={() => this.onUpdate()}>Update</Button>
@@ -153,6 +170,7 @@ class Dashboard extends Component {
                     <tr className="table-danger">Email: {this.state.user.users.email}</tr>
                     <tr className="table-danger">Phone: {this.state.user.recruiter.phone}</tr>
                     <tr className="table-danger">Bio: {this.state.user.recruiter.bio}</tr>
+                    {this.renderProfile(this.state.user.users)}
                 </tbody>
             </table>
             <Button size="sm" variant="outline-primary" onClick={() => this.onUpdate()}>Update</Button>

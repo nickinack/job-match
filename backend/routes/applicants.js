@@ -101,11 +101,13 @@ router.route('/update/:id').post((req , res) => {
             users.name = req.body.name;
             users.email = req.body.email;
             users.password = req.body.password;
+            users.profile = req.body.imgencode;
             applicants.rating = req.body.rating;
             applicants.usrid = req.params.id;
             applicants.languages = req.body.languages;
             applicants.education = req.body.education;
             applicants.skills = req.body.skills;
+            applicants.resume = req.body.resume;
             bcrypt.genSalt(10, (err,salt) => {
                 bcrypt.hash(users.password, salt, (err, hash) => {
                     if(err) throw err;

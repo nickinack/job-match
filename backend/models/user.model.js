@@ -24,6 +24,10 @@ const userSchema = new Schema({
     type: {
         type: String,
         required: true
+    },
+
+    profile: {
+        type: String,
     }
 
 }, {timestamps: true});

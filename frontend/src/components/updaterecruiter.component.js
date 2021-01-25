@@ -22,6 +22,7 @@ class recruiterUpdate extends Component {
             phone: '',
             password: '',
             id: '',
+            imgencode: ''
         }
     }
 
@@ -47,6 +48,7 @@ class recruiterUpdate extends Component {
                         this.setState({email: userdetails.data.users.email});
                         this.setState({phone: userdetails.data.recruiter.phone});
                         this.setState({bio: userdetails.data.recruiter.bio});
+                        this.setState({imgencode: userdetails.data.users.profile})
                         console.log(userdetails.data); 
                     })
                     .catch(function(error) {
@@ -105,6 +107,7 @@ class recruiterUpdate extends Component {
             password: this.state.password,
             phone: this.state.phone,
             bio: this.state.bio,
+            imgencode: this.state.imgencode
         }
         const url = "http://localhost:5000/recruiters/update/" + this.state.id;
         axios.post(url , recruiter).then(result => { 
@@ -138,7 +141,7 @@ class recruiterUpdate extends Component {
 
                     <div className="form-group">
                         <label>Password: </label>
-                        <input type="text" className="form-control" value={this.state.password} onChange={this.onChangePassword} />
+                        <input type="password" className="form-control" value={this.state.password} onChange={this.onChangePassword} />
                     </div>
 
                     <div className="form-group">
