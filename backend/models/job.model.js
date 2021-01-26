@@ -11,12 +11,14 @@ const jobSchema = new Schema({
 
     max_applicants: {
         type: Number,
-        required: true
+        required: true,
+        min: 0
     },
 
     max_positions: {
         type: Number,
-        required: true
+        required: true,
+        min: 0
     },
 
     date_posted: {

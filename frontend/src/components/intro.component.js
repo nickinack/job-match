@@ -7,8 +7,8 @@ export default class Intro extends Component {
         super(props);
       }
       componentDidMount() {
-        this.props.handler();
         localStorage.clear();
+        this.props.handler();
       }
     render() {
         return (

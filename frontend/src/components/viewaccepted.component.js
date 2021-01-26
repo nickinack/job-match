@@ -336,7 +336,6 @@ class appViewJob extends Component {
 
         if(this.state.loading || !this.state.applications)
         {
-            console.log(localStorage.getItem("type"));
             return (
                 <div>Loading ...</div>
             );
@@ -381,7 +380,7 @@ class appViewJob extends Component {
                                 <Dropdown.Divider />
                                 <Dropdown.Item eventKey="Name">Name</Dropdown.Item>
                                 <Dropdown.Divider />
-                                <Dropdown.Item eventKey="Date">Posting date</Dropdown.Item>
+                                <Dropdown.Item eventKey="Date">Joining date</Dropdown.Item>
                                 <Dropdown.Divider />
                                 <Dropdown.Item eventKey="Title">Job Title</Dropdown.Item>
                             </DropdownButton>

@@ -128,23 +128,36 @@ router.route('/update/:id').post((req,res) => {
                 }
                 
             }
-            if(req.body.max_positions > max_positions && req.body.max_applicants > applications.length)
+            if(req.body.max_applicants == 0 || req.body.max_positions == 0)
+            {
+                return res.send('Not applicable');
+            }
+            else if(req.body.max_positions > max_positions && req.body.max_applicants > applications.length)
             {
 
-                {
                     Job.updateOne({_id: req.params.id} , {$set: {max_applicants: req.body.max_applicants, max_positions: req.body.max_positions, deadline: req.body.deadline, active: 1}})
                     .then(jobs => {
                         return res.send('Successfully updated!');
                     })
                     .catch(err => res.send('Error: ' + err));
-                }
             }
-            else {
-                Job.updateOne({_id: req.params.id} , {$set: {max_applicants: req.body.max_applicants, max_positions: req.body.max_positions, deadline: req.body.deadline}})
+            else if(req.body.max_positions == max_positions)
+            {
+
+                Job.updateOne({_id: req.params.id} , {$set: {max_applicants: req.body.max_applicants, max_positions: req.body.max_positions, deadline: req.body.deadline, active: 0}})
                 .then(jobs => {
-                    return res.send('Successfully updated!');
+                    Application.updateMany({"job": req.params.id , "accept": {"$in": ['0' , '1']}} , {$set: {"accept": 3}})
+                    .then(() => {
+                        return res.send('Successfully updated!');
+                    })
+                    .catch(err => res.send('Error: ' + err));
+                    
                 })
                 .catch(err => res.send('Error: ' + err));
+            }
+            else 
+            {
+               return res.send('Error updating!');
             }
         })
         .catch(err => res.send('Error: ' + err));

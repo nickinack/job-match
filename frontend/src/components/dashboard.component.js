@@ -148,8 +148,8 @@ class Dashboard extends Component {
             return (
             <div className="container">
             <h1>Hey! You are an applicant!</h1>
-                <div className="d-flex flex-row">
-                    <div className="p-2">
+                <div className="flex-row">
+                    <div>
                         <table className="table table-bordered">
                             <tbody>
                             <tr className="table-danger">Name: {this.state.user.users.name}</tr>
@@ -161,7 +161,7 @@ class Dashboard extends Component {
                             </tbody>
                         </table>
                     </div>
-                    <div className="p-2">
+                    <div>
                         {this.renderProfile(this.state.user.users)}
                     </div>
                 </div>

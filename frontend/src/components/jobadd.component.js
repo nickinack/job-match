@@ -255,7 +255,7 @@ class Login extends Component {
                 </div>
 
                 <div className="form-group">
-                    <label>Enter Posting Date</label>
+                    <label>Enter Joining Date</label>
                     <input type="date" id="start" name="trip-start" value="2021-07-22" min="2020-01-01" max="2021-12-31" className="form-control" value={this.state.posting_date} onChange={this.onChangePostingDate} />
                 </div>
 

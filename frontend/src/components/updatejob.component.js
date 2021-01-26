@@ -52,6 +52,17 @@ class updateJob extends Component {
     }
 
     onSubmit(e) {
+        const deadlineDate = new Date(this.state.deadline);
+        const cur_date = new Date();
+        const cur_stamp = cur_date.getTime();
+        const deadline_stamp = Date.parse(deadlineDate);
+        if(cur_stamp >= deadline_stamp)
+        {
+            alert("Enter the dates properly");
+            window.location.reload(false);
+        }
+        console.log(cur_stamp , deadline_stamp);
+        
         e.preventDefault();
         const updateDetails = {
             max_applicants: this.state.max_applicants,
@@ -59,7 +70,6 @@ class updateJob extends Component {
             max_positions: this.state.max_positions,
             token: localStorage.getItem('token')
         }
-        console.log(this.state);
         const url = "http://localhost:5000/jobs/update/" + this.state.id;
         axios.post(url,updateDetails)
         .then(result => {
@@ -98,17 +108,17 @@ class updateJob extends Component {
 
                 <div className="form-group">
                     <label>Max Applicants:</label>
-                    <input type="text" className="form-control" value={this.state.max_applicants} onChange={this.onChangeMaxApplicants} />
+                    <input type="text" className="form-control" value={this.state.max_applicants} onChange={this.onChangeMaxApplicants} required="true" />
                 </div>
 
                 <div className="form-group">
                     <label>Max Positions:</label>
-                    <input type="text" className="form-control" value={this.state.max_positions} onChange={this.onChangeMaxPositions} />
+                    <input type="text" className="form-control" value={this.state.max_positions} onChange={this.onChangeMaxPositions} required="true" />
                 </div>
 
                 <div className="form-group">
                     <label>Enter the Deadline for application</label>
-                    <input type="datetime-local" className='form-control' value={this.state.deadline} onChange={this.onChangeDeadline} timeFormat={true} inputProps={{ placeholder: "Deadline" }}/>
+                    <input type="datetime-local" className='form-control' value={this.state.deadline} onChange={this.onChangeDeadline} timeFormat={true} inputProps={{ placeholder: "Deadline" }} required="true"/>
                 </div>
                 
                 <div className="form-group">

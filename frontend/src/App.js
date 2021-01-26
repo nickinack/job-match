@@ -24,7 +24,7 @@ class App extends Component {
     this.handler1 = this.handler1.bind(this);
     this.handler2 = this.handler2.bind(this);
     this.state = {
-      logged_in: ''
+      logged_in: (localStorage.getItem('token') ? true : false)
     }
   }
  
