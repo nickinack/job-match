@@ -373,7 +373,7 @@ class appViewJob extends Component {
         {
             if(this.getApplicantDetails(d.applicant).resume == 1)
             console.log("APPLICANT" , d.applicant);
-            const path = 'file:///Users/karthik/Desktop/linkedin-clone/public/' + d.applicant + '.pdf';
+            const path = 'file:///Users/karthik/Desktop/linkedin-clone/backend/public/' + d.applicant + '.pdf';
             return(<a href={path} download>Download</a>)     
         }
         return '';

@@ -163,7 +163,7 @@ router.route('/uploadresume/:id').post((req , res) => {
 
     var storage = multer.diskStorage({
         destination: function (req, file, cb) {
-        cb(null, '../public')
+        cb(null, 'public')
     },
     filename: function (req, file, cb) {
         cb(null, req.params.id+'.pdf')
